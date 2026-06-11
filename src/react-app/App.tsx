@@ -3,18 +3,111 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
+/* ─── Particle Canvas ─── */
+interface PCOpts { density?: number; maxLink?: number; speed?: number; drift?: number; sizeMul?: number; }
+
+const ParticleCanvas: React.FC<{
+  opts?: PCOpts;
+  className?: string;
+  style?: React.CSSProperties;
+  mouseRef?: React.RefObject<{ x: number; y: number }>;
+}> = ({ opts, className = "particle-canvas", style, mouseRef }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const optsRef   = useRef(opts);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Capture non-null refs for use in closures
+    const cvs: HTMLCanvasElement = canvas;
+    const cx: CanvasRenderingContext2D = ctx;
+
+    const { density = 0.00009, maxLink = 150, speed = 0.18, sizeMul = 1, drift = 0 } = optsRef.current ?? {};
+    type Pt = { x: number; y: number; vx: number; vy: number; r: number; a: number };
+    let w = 0, h = 0, dpr = 1, pts: Pt[] = [], rafId = 0;
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio ?? 1, 2);
+      w = cvs.clientWidth; h = cvs.clientHeight;
+      cvs.width = w * dpr; cvs.height = h * dpr;
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      pts = Array.from({ length: Math.max(28, Math.round(w * h * density)) }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        vx: (Math.random() - 0.5) * speed + drift,
+        vy: (Math.random() - 0.5) * speed,
+        r: (Math.random() * 1.6 + 0.6) * sizeMul,
+        a: Math.random() * 0.5 + 0.3,
+      }));
+    }
+
+    function draw() {
+      const mx = mouseRef?.current?.x ?? -9999;
+      const my = mouseRef?.current?.y ?? -9999;
+      cx.clearRect(0, 0, w, h);
+      for (const p of pts) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -20) p.x = w + 20; else if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20; else if (p.y > h + 20) p.y = -20;
+      }
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const pi = pts[i], pj = pts[j];
+          const dist = Math.hypot(pi.x - pj.x, pi.y - pj.y);
+          if (dist < maxLink) {
+            cx.strokeStyle = `rgba(217,164,65,${((1 - dist / maxLink) * 0.5).toFixed(3)})`;
+            cx.lineWidth = 0.6;
+            cx.beginPath(); cx.moveTo(pi.x, pi.y); cx.lineTo(pj.x, pj.y); cx.stroke();
+          }
+        }
+      }
+      for (const p of pts) {
+        const dm = Math.hypot(p.x - mx, p.y - my);
+        let glow = p.a;
+        if (dm < 170) {
+          const ratio = 1 - dm / 170;
+          glow = Math.min(1, p.a + ratio * 0.6);
+          cx.strokeStyle = `rgba(244,212,136,${(ratio * 0.5).toFixed(3)})`;
+          cx.lineWidth = 0.7;
+          cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(mx, my); cx.stroke();
+        }
+        cx.beginPath();
+        cx.fillStyle = `rgba(244,212,136,${glow.toFixed(3)})`;
+        cx.shadowColor = "rgba(244,212,136,.9)"; cx.shadowBlur = p.r * 4;
+        cx.arc(p.x, p.y, p.r, 0, Math.PI * 2); cx.fill();
+        cx.shadowBlur = 0;
+      }
+      rafId = requestAnimationFrame(draw);
+    }
+
+    let rtimer = 0;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onResize = () => {
+      clearTimeout(rtimer);
+      rtimer = window.setTimeout(() => { resize(); cancelAnimationFrame(rafId); start(); }, 180);
+    };
+    window.addEventListener("resize", onResize);
+
+    function start() {
+      resize(); cancelAnimationFrame(rafId);
+      if (!mq.matches) { draw(); } else {
+        cx.clearRect(0, 0, w, h);
+        for (const p of pts) { cx.beginPath(); cx.fillStyle = `rgba(244,212,136,${p.a})`; cx.arc(p.x, p.y, p.r, 0, Math.PI * 2); cx.fill(); }
+      }
+    }
+    start();
+    return () => { cancelAnimationFrame(rafId); clearTimeout(rtimer); window.removeEventListener("resize", onResize); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return <canvas ref={canvasRef} className={className} style={style} />;
+};
+
 /* ─── SVG Icons ─── */
 const ToothIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
     <path d="M12 4c-3 0-4 2-4 5 0 4 1.2 11 2.4 11 .9 0 1-3 1.6-3s.7 3 1.6 3c1.2 0 2.4-7 2.4-11 0-3-1-5-4-5Z"/>
-  </svg>
-);
-
-const ScanIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
-    <rect x="3" y="5" width="18" height="11" rx="1.5"/>
-    <path d="M8 20h8M12 16v4"/>
-    <path d="M8.5 11c1-1.6 2-2.2 3.5-2.2S14.5 9.4 15.5 11"/>
   </svg>
 );
 
@@ -39,8 +132,7 @@ const ShieldCheckIcon = () => (
 const CalendarIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
     <rect x="3" y="4" width="18" height="18" rx="2"/>
-    <line x1="16" y1="2" x2="16" y2="6"/>
-    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
     <line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
 );
@@ -95,61 +187,58 @@ const FAQAccordionItem: React.FC<FAQItemProps> = ({ question, answer }) => {
 
 /* ─── Main App ─── */
 export default function App() {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  // Before/After slider
-  const [sliderPos, setSliderPos] = useState(50);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Workflow tabs
-  const [activeStep, setActiveStep] = useState(0);
-
-  // Case Calculator
-  const [workType, setWorkType] = useState("coroa_zirconia");
-  const [material, setMaterial] = useState("zirconia_mult");
-  const [toothShade, setToothShade] = useState("A2");
-  const [urgency, setUrgency] = useState("padrao");
-  const [dentistName, setDentistName] = useState("");
-  const [dentistCro, setDentistCro] = useState("");
+  const [isScrolled,   setIsScrolled]   = useState(false);
+  const [menuOpen,     setMenuOpen]     = useState(false);
+  const [sliderPos,    setSliderPos]    = useState(50);
+  const [activeStep,   setActiveStep]   = useState(0);
+  const [workType,     setWorkType]     = useState("coroa_zirconia");
+  const [material,     setMaterial]     = useState("zirconia_mult");
+  const [toothShade,   setToothShade]   = useState("A2");
+  const [urgency,      setUrgency]      = useState("padrao");
+  const [dentistName,  setDentistName]  = useState("");
+  const [dentistCro,   setDentistCro]   = useState("");
   const [dentistPhone, setDentistPhone] = useState("");
-  const [caseSubmitted, setCaseSubmitted] = useState(false);
-  const [caseCode, setCaseCode] = useState("");
+  const [caseSubmitted,setCaseSubmitted]= useState(false);
+  const [caseCode,     setCaseCode]     = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
 
-  // Scroll watch
+  const containerRef  = useRef<HTMLDivElement>(null);
+  const heroMouseRef  = useRef({ x: -9999, y: -9999 });
+
+  /* scroll lock for navbar */
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Reveal-on-scroll
+  /* reveal on scroll */
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal");
     const io = new IntersectionObserver(
       (entries) => entries.forEach(e => e.isIntersecting && e.target.classList.add("in")),
-      { threshold: 0.15 }
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
     );
     els.forEach(el => io.observe(el));
     return () => io.disconnect();
   }, []);
 
-  // Slider handlers
+  /* close menu on nav link click */
+  const closeMenu = () => setMenuOpen(false);
+
+  /* before/after slider */
   const handleSliderMove = (clientX: number) => {
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
-      setSliderPos(pct);
+      setSliderPos(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)));
     }
   };
   const onMouseMove = (e: React.MouseEvent) => handleSliderMove(e.clientX);
   const onTouchMove = (e: React.TouchEvent) => { if (e.touches[0]) handleSliderMove(e.touches[0].clientX); };
 
-  // Price calculator
+  /* price calculator */
   const calculatePrice = () => {
-    const base: Record<string, number> = {
-      coroa_zirconia: 390, lente_emax: 480, sobre_implante: 710, placa_miorrelaxante: 190
-    };
+    const base: Record<string, number> = { coroa_zirconia: 390, lente_emax: 480, sobre_implante: 710, placa_miorrelaxante: 190 };
     let p = base[workType] ?? 390;
     if (material === "emax_cad") p += 50;
     if (material === "zirconia_mult_4d") p += 40;
@@ -157,40 +246,32 @@ export default function App() {
     return p;
   };
 
-  // Delivery date
+  /* delivery date */
   useEffect(() => {
     const today = new Date();
-    let days = urgency === "express" ? 2 : 5;
+    const days = urgency === "express" ? 2 : 5;
     let count = 0;
     const d = new Date(today);
-    while (count < days) {
-      d.setDate(d.getDate() + 1);
-      const wd = d.getDay();
-      if (wd !== 0 && wd !== 6) count++;
-    }
+    while (count < days) { d.setDate(d.getDate() + 1); const wd = d.getDay(); if (wd !== 0 && wd !== 6) count++; }
     setDeliveryDate(d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" }));
   }, [urgency, workType]);
 
   const handleRegisterCase = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dentistName || !dentistCro || !dentistPhone) {
-      alert("Por favor, preencha todos os campos do dentista.");
-      return;
-    }
+    if (!dentistName || !dentistCro || !dentistPhone) { alert("Por favor, preencha todos os campos do dentista."); return; }
     const code = `MCV-2026-${Math.floor(1000 + Math.random() * 9000)}-RO`;
-    setCaseCode(code);
-    setCaseSubmitted(true);
+    setCaseCode(code); setCaseSubmitted(true);
   };
 
   const resetForm = () => { setCaseSubmitted(false); setDentistName(""); setDentistCro(""); setDentistPhone(""); };
 
-  // Workflow steps
+  /* workflow steps */
   const workflowSteps = [
-    { title: "Escaneamento & Envio", tag: "Etapa 01", tech: "Sistemas STL/PLY Abertos", desc: "O dentista realiza o escaneamento intraoral do paciente e envia o arquivo de malha 3D (STL ou PLY) diretamente para nós por meio do nosso formulário ou via Medit Link, Align iTero ou Carestream.", stat: "Compatibilidade: 100%" },
-    { title: "Planejamento CAD", tag: "Etapa 02", tech: "Exocad DentalDB & 3Shape", desc: "Nossos projetistas importam o modelo digital no software CAD e desenham a coroa ou faceta com precisão micrométrica, mapeando margem de término, pontos de contato e oclusão fisiológica.", stat: "Margem de Erro: < 5 mícrons" },
-    { title: "Fresagem CNC & CAM", tag: "Etapa 03", tech: "Fresadoras Alemãs de 5 Eixos", desc: "O projeto CAD é enviado à central de usinagem. Nossa fresadora esculpe o bloco de zircônia multilayer ou dissilicato de lítio com brocas diamantadas resfriadas a ar, garantindo estabilidade e integridade estrutural extrema.", stat: "Velocidade: 60.000 RPM" },
-    { title: "Arte e Maquiagem", tag: "Etapa 04", tech: "Cerâmica Feldspática Artesanal", desc: "As peças fresadas passam pela sinterização térmica e, em seguida, pela maquiagem artística realizada à mão por técnicos experientes. Aplicamos texturas e cores na escala Vita para translucidez e opalescência idênticas ao dente natural.", stat: "Personalização: Exclusiva" },
-    { title: "Logística Inteligente", tag: "Etapa 05", tech: "Desinfecção UV-C & Entrega Express", desc: "Após controle de qualidade em microscópio, as próteses são esterilizadas em câmara UV-C, embaladas a vácuo em embalagem cirúrgica e despachadas por portador expresso para o seu consultório.", stat: "Logística: Rastreamento em tempo real" },
+    { title: "Escaneamento & Envio",   tag: "Etapa 01", tech: "Sistemas STL/PLY Abertos",       desc: "O dentista realiza o escaneamento intraoral e envia o arquivo de malha 3D (STL ou PLY) diretamente para nós por meio do nosso formulário ou via Medit Link, Align iTero ou Carestream.", stat: "Compatibilidade: 100%" },
+    { title: "Planejamento CAD",       tag: "Etapa 02", tech: "Exocad DentalDB & 3Shape",        desc: "Nossos projetistas importam o modelo digital no software CAD e desenham a coroa ou faceta com precisão micrométrica, mapeando margem de término, pontos de contato e oclusão fisiológica.", stat: "Margem de Erro: < 5 mícrons" },
+    { title: "Fresagem CNC & CAM",     tag: "Etapa 03", tech: "Fresadoras Alemãs de 5 Eixos",    desc: "O projeto CAD é enviado à central de usinagem. Nossa fresadora esculpe o bloco de zircônia multilayer ou dissilicato de lítio com brocas diamantadas resfriadas a ar.", stat: "Velocidade: 60.000 RPM" },
+    { title: "Arte e Maquiagem",       tag: "Etapa 04", tech: "Cerâmica Feldspática Artesanal",  desc: "As peças fresadas passam pela sinterização térmica e pela maquiagem artística realizada à mão por técnicos experientes. Aplicamos texturas e cores na escala Vita para translucidez idêntica ao dente natural.", stat: "Personalização: Exclusiva" },
+    { title: "Logística Inteligente",  tag: "Etapa 05", tech: "Desinfecção UV-C & Entrega Express", desc: "Após controle de qualidade em microscópio, as próteses são esterilizadas em câmara UV-C, embaladas a vácuo e despachadas por portador expresso para o seu consultório.", stat: "Logística: Rastreamento em tempo real" },
   ];
 
   return (
@@ -208,19 +289,32 @@ export default function App() {
             <span className="logo-wordmark">MACROV<span className="lab">LAB</span></span>
             <span className="logo-dot" />
           </a>
-          <ul className="nav-links">
-            <li><a href="#manifesto" className="nav-link">Manifesto</a></li>
-            <li><a href="#jornada"   className="nav-link">A Jornada</a></li>
-            <li><a href="#solucoes"  className="nav-link">Soluções</a></li>
-            <li><a href="#simulador" className="nav-link">Simulador</a></li>
-            <li><a href="#galeria"   className="nav-link">Galeria</a></li>
-            <li><a href="#contato"   className="btn btn-gold nav-link" style={{ padding: "10px 20px", borderRadius: "999px" }}>Fale conosco</a></li>
+          <ul className={`nav-links ${menuOpen ? "mobile-open" : ""}`}>
+            <li><a href="#manifesto" className="nav-link" onClick={closeMenu}>Manifesto</a></li>
+            <li><a href="#jornada"   className="nav-link" onClick={closeMenu}>A Jornada</a></li>
+            <li><a href="#solucoes"  className="nav-link" onClick={closeMenu}>Soluções</a></li>
+            <li><a href="#simulador" className="nav-link" onClick={closeMenu}>Simulador</a></li>
+            <li><a href="#galeria"   className="nav-link" onClick={closeMenu}>Galeria</a></li>
+            <li><a href="#contato"   className="nav-link btn btn-gold" style={{ padding: "10px 20px", borderRadius: "999px" }} onClick={closeMenu}>Fale conosco</a></li>
           </ul>
+          <button className="burger-btn" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+            <span /><span /><span />
+          </button>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <header className="hero" id="top">
+      <header
+        className="hero" id="top"
+        onMouseMove={e => { const b = e.currentTarget.getBoundingClientRect(); heroMouseRef.current = { x: e.clientX - b.left, y: e.clientY - b.top }; }}
+        onMouseLeave={() => { heroMouseRef.current = { x: -9999, y: -9999 }; }}
+      >
+        <ParticleCanvas
+          className="particle-canvas-hero"
+          opts={{ density: 0.00011, maxLink: 155, speed: 0.22, sizeMul: 1.1 }}
+          mouseRef={heroMouseRef}
+        />
+
         <div className="container">
           <div className="hero-grid">
             <div className="hero-content">
@@ -239,12 +333,8 @@ export default function App() {
               </p>
 
               <div className="hero-buttons">
-                <a href="#solucoes" className="btn btn-gold btn-pulse">
-                  Conhecer o laboratório <ArrowRight />
-                </a>
-                <a href="#simulador" className="btn btn-ghost">
-                  Enviar um caso
-                </a>
+                <a href="#solucoes" className="btn btn-gold btn-pulse">Conhecer o laboratório <ArrowRight /></a>
+                <a href="#simulador" className="btn btn-ghost">Enviar um caso</a>
               </div>
 
               <div className="hero-stats">
@@ -266,7 +356,7 @@ export default function App() {
             <div className="hero-visual">
               <div className="visual-wrapper">
                 <div className="visual-halo" />
-                <img src="/scanner.png" alt="Scanner e fresadora de prótese dentária MACROVLAB" className="visual-image" />
+                <img src="/scanner.png" alt="Scanner e fresadora MACROVLAB" className="visual-image" />
                 <div className="floating-badge badge-top-right">
                   <div className="badge-icon"><CpuIcon /></div>
                   <div className="badge-text">
@@ -286,7 +376,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Scroll cue */}
         <div className="scrollcue">
           <span>Role</span>
           <span className="bar" />
@@ -319,8 +408,13 @@ export default function App() {
       </section>
 
       {/* ── MANIFESTO ── */}
-      <section className="section" id="manifesto" style={{ background: "linear-gradient(180deg, var(--bg-2), var(--panel))", textAlign: "center" }}>
-        <div className="container">
+      <section
+        className="section"
+        id="manifesto"
+        style={{ background: "linear-gradient(180deg, var(--bg-2), var(--panel))", textAlign: "center", overflow: "hidden" }}
+      >
+        <ParticleCanvas opts={{ density: 0.00006, maxLink: 140, speed: 0.14, drift: 0.05, sizeMul: 0.9 }} style={{ opacity: .55 }} />
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <span className="eyebrow center reveal">A evolução é nossa essência</span>
           <h2 className="reveal d1" style={{ fontWeight: 300, fontSize: "clamp(34px,5.2vw,72px)", marginTop: "28px", maxWidth: "1000px", margin: "28px auto 0" }}>
             <span style={{ fontWeight: 300, display: "block" }}>Da tradição</span>
@@ -343,26 +437,10 @@ export default function App() {
 
           <div className="process-grid">
             {[
-              {
-                n:"01", title:"Tudo começou no", hl:"digital",
-                desc:"Do esboço à era digital: a base de conhecimento e o olhar artesanal que sustentam cada projeto.",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5V5.5Z"/><path d="M20 5.5C20 4.7 19.3 4 18.5 4H13v15h5.5c.8 0 1.5-.7 1.5-1.5V5.5Z"/><path d="M7 8h2M7 11h2M15 8h2M15 11h2"/></svg>
-              },
-              {
-                n:"02", title:"Projetos", hl:"CAD",
-                desc:"Planejamento digital com precisão para resultados previsíveis e totalmente personalizados.",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M9.5 10.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5"/></svg>
-              },
-              {
-                n:"03", title:"Fluxos", hl:"digitais",
-                desc:"Integração completa — escaneamento, design, planejamento e fabricação em um só ecossistema.",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="6" r="2.4"/><circle cx="5" cy="18" r="2.4"/><circle cx="19" cy="18" r="2.4"/><path d="M12 8.4v3.6M12 12l-5.3 3.8M12 12l5.3 3.8"/></svg>
-              },
-              {
-                n:"04", title:"Tecnologia", hl:"aplicada",
-                desc:"Soluções que unem precisão, inovação e eficiência para transformar sorrisos.",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="7" r="3.2"/><path d="M9.4 9.4 8 22M14.6 9.4 16 22M8.6 14h6.8M8.2 18h7.6"/></svg>
-              }
+              { n:"01", title:"Tudo começou no", hl:"digital",   desc:"Do esboço à era digital: a base de conhecimento e o olhar artesanal que sustentam cada projeto.",                                  icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5V5.5Z"/><path d="M20 5.5C20 4.7 19.3 4 18.5 4H13v15h5.5c.8 0 1.5-.7 1.5-1.5V5.5Z"/><path d="M7 8h2M7 11h2M15 8h2M15 11h2"/></svg> },
+              { n:"02", title:"Projetos",         hl:"CAD",       desc:"Planejamento digital com precisão para resultados previsíveis e totalmente personalizados.",                                          icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M9.5 10.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5"/></svg> },
+              { n:"03", title:"Fluxos",           hl:"digitais",  desc:"Integração completa — escaneamento, design, planejamento e fabricação em um só ecossistema.",                                         icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="6" r="2.4"/><circle cx="5" cy="18" r="2.4"/><circle cx="19" cy="18" r="2.4"/><path d="M12 8.4v3.6M12 12l-5.3 3.8M12 12l5.3 3.8"/></svg> },
+              { n:"04", title:"Tecnologia",       hl:"aplicada",  desc:"Soluções que unem precisão, inovação e eficiência para transformar sorrisos.",                                                          icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="7" r="3.2"/><path d="M9.4 9.4 8 22M14.6 9.4 16 22M8.6 14h6.8M8.2 18h7.6"/></svg> },
             ].map((s, i) => (
               <div key={i} className={`step-card reveal ${i > 0 ? `d${i}` : ""}`}>
                 <div className="step-nl" />
@@ -389,30 +467,18 @@ export default function App() {
 
           <div className="svc-grid">
             {[
-              {
-                title:"Prótese sobre implante", desc:"Coroas, barras e protocolos parafusados com encaixe passivo e estética natural.", tag:"CAD/CAM · Zircônia", delay:"",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="6" r="3.2"/><path d="M9.4 9 8.5 14h7l-.9-5M9 17h6M9.6 20h4.8"/></svg>
-              },
-              {
-                title:"Coroas & facetas", desc:"Restaurações cerâmicas usinadas com fidelidade de cor, forma e textura.", tag:"Dissilicato · Cerâmica", delay:"d1",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 4c-3 0-4 2-4 5 0 4 1.2 11 2.4 11 .9 0 1-3 1.6-3s.7 3 1.6 3c1.2 0 2.4-7 2.4-11 0-3-1-5-4-5Z"/></svg>
-              },
-              {
-                title:"Planejamento digital", desc:"Design do sorriso (DSD) e mock-up virtual para aprovação antes da execução.", tag:"DSD · Wax-up digital", delay:"d2",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M8 20h8M12 16v4"/><path d="M8.5 11c1-1.6 2-2.2 3.5-2.2S14.5 9.4 15.5 11"/></svg>
-              },
-              {
-                title:"Fluxo digital completo", desc:"Do escaneamento intraoral à fabricação, em um processo integrado e rastreável.", tag:"Scan · Design · Mill", delay:"",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 12A8 8 0 0 1 6.3 17.6"/><path d="M17 3v4h-4M7 21v-4h4"/></svg>
-              },
-              {
-                title:"Atendimento ao dentista", desc:"Suporte técnico próximo, prazos confiáveis e logística para todo o Brasil.", tag:"Parceria clínica", delay:"d1",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 7h14v10H5zM5 7l7 5 7-5"/><circle cx="18" cy="6" r="2.4" fill="currentColor" stroke="none"/></svg>
-              },
-              {
-                title:"Garantia de qualidade", desc:"Conferência dimensional e controle de cada peça antes da entrega final.", tag:"Controle ±0,01mm", delay:"d2",
-                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3l7 4v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V7l7-4Z"/><path d="m9 12 2 2 4-4"/></svg>
-              }
+              { title:"Prótese sobre implante",   desc:"Coroas, barras e protocolos parafusados com encaixe passivo e estética natural.",              tag:"CAD/CAM · Zircônia",     delay:"",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="6" r="3.2"/><path d="M9.4 9 8.5 14h7l-.9-5M9 17h6M9.6 20h4.8"/></svg> },
+              { title:"Coroas & facetas",         desc:"Restaurações cerâmicas usinadas com fidelidade de cor, forma e textura.",                      tag:"Dissilicato · Cerâmica", delay:"d1",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 4c-3 0-4 2-4 5 0 4 1.2 11 2.4 11 .9 0 1-3 1.6-3s.7 3 1.6 3c1.2 0 2.4-7 2.4-11 0-3-1-5-4-5Z"/></svg> },
+              { title:"Planejamento digital",     desc:"Design do sorriso (DSD) e mock-up virtual para aprovação antes da execução.",                  tag:"DSD · Wax-up digital",  delay:"d2",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M8 20h8M12 16v4"/><path d="M8.5 11c1-1.6 2-2.2 3.5-2.2S14.5 9.4 15.5 11"/></svg> },
+              { title:"Fluxo digital completo",   desc:"Do escaneamento intraoral à fabricação, em um processo integrado e rastreável.",               tag:"Scan · Design · Mill",  delay:"",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 12A8 8 0 0 1 6.3 17.6"/><path d="M17 3v4h-4M7 21v-4h4"/></svg> },
+              { title:"Atendimento ao dentista",  desc:"Suporte técnico próximo, prazos confiáveis e logística para todo o Brasil.",                  tag:"Parceria clínica",      delay:"d1",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 7h14v10H5zM5 7l7 5 7-5"/><circle cx="18" cy="6" r="2.4" fill="currentColor" stroke="none"/></svg> },
+              { title:"Garantia de qualidade",    desc:"Conferência dimensional e controle de cada peça antes da entrega final.",                      tag:"Controle ±0,01mm",      delay:"d2",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3l7 4v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V7l7-4Z"/><path d="m9 12 2 2 4-4"/></svg> },
             ].map((s, i) => (
               <article key={i} className={`svc reveal ${s.delay}`}>
                 <div className="ic">{s.icon}</div>
@@ -425,29 +491,26 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── TECNOLOGIA / SHOWCASE (before/after slider) ── */}
+      {/* ── ESTÉTICA (before/after slider) ── */}
       <section className="section" id="estetica" style={{ background: "var(--panel)", borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
             <span className="eyebrow center reveal">Estética de Elite</span>
             <h2 className="reveal d1">Da malha digital ao <b className="gold-text">sorriso real.</b></h2>
-            <p className="section-desc reveal d2">Deslize o cursor sobre a imagem para ver a estrutura CAD (esquerda) se transformando no brilho da cerâmica finalizada (direita).</p>
+            <p className="section-desc reveal d2">Deslize o cursor sobre a imagem para ver a estrutura CAD se transformando no brilho da cerâmica finalizada.</p>
           </div>
 
           <div className="comparison-container reveal" ref={containerRef} onMouseMove={onMouseMove} onTouchMove={onTouchMove}>
             <div className="comparison-wrapper">
-              {/* Before */}
-              <div className="comp-img comp-before" style={{ width: "100%", height: "100%" }}>
+              <div className="comp-img comp-before">
                 <img src="/post-02-cad.png" alt="Projeto CAD Digital"
                   style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(.9) contrast(1.2) brightness(.65) sepia(.8) hue-rotate(170deg) saturate(2.5)" }}
                 />
                 <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(0deg, rgba(0,180,200,.08) 1px, transparent 1px)", backgroundSize: "100% 4px", zIndex: 2, pointerEvents: "none" }} />
               </div>
-              {/* After */}
-              <div className="comp-img comp-after" style={{ width: "100%", height: "100%", clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}>
+              <div className="comp-img comp-after" style={{ clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}>
                 <img src="/post-01-digital.png" alt="Restauração Finalizada" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
-              {/* Handle */}
               <div className="comp-slider-handle" style={{ left: `${sliderPos}%` }}>
                 <div className="comp-slider-button">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -485,7 +548,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── WORKFLOW (CAD/CAM Process tabs) ── */}
+      {/* ── WORKFLOW (Process tabs) ── */}
       <section className="section" id="workflow" style={{ background: "var(--panel)", borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
@@ -497,10 +560,7 @@ export default function App() {
           <div className="workflow-nav">
             {workflowSteps.map((step, idx) => (
               <button key={idx} className={`workflow-tab-btn ${activeStep === idx ? "active" : ""}`} onClick={() => setActiveStep(idx)}>
-                <span className="step-num-circle" style={{
-                  background: activeStep === idx ? "var(--gold)" : "rgba(255,255,255,.08)",
-                  color: activeStep === idx ? "#231703" : "var(--muted)"
-                }}>{idx + 1}</span>
+                <span className="step-num-circle" style={{ background: activeStep === idx ? "var(--gold)" : "rgba(255,255,255,.08)", color: activeStep === idx ? "#231703" : "var(--muted)" }}>{idx + 1}</span>
                 {step.title}
               </button>
             ))}
@@ -509,9 +569,7 @@ export default function App() {
           <div className="glass-panel workflow-content">
             <div className="workflow-info">
               <span className="workflow-step-tag">{workflowSteps[activeStep].tag}</span>
-              <h3 style={{ fontSize: "1.75rem", color: "var(--gold-lt)", marginTop: "8px", marginBottom: "8px" }}>
-                {workflowSteps[activeStep].title}
-              </h3>
+              <h3 style={{ fontSize: "1.75rem", color: "var(--gold-lt)", marginTop: "8px", marginBottom: "8px" }}>{workflowSteps[activeStep].title}</h3>
               <p style={{ fontSize: ".84rem", fontWeight: 700, color: "var(--muted)", marginBottom: "18px", textTransform: "uppercase", letterSpacing: ".05em" }}>
                 Tecnologia: <span style={{ color: "var(--ink)" }}>{workflowSteps[activeStep].tech}</span>
               </p>
@@ -522,7 +580,7 @@ export default function App() {
             </div>
             <div className="workflow-visual">
               <img
-                src={activeStep === 0 ? "/post-01-digital.png" : activeStep === 1 ? "/post-02-cad.png" : activeStep === 2 ? "/dental_lab_setup.png" : activeStep === 3 ? "/dental_handcraft.png" : "/dental_finished_smile.png"}
+                src={["/post-01-digital.png","/post-02-cad.png","/dental_lab_setup.png","/dental_handcraft.png","/dental_finished_smile.png"][activeStep]}
                 alt={workflowSteps[activeStep].title}
               />
               <div className="workflow-visual-overlay">
@@ -661,7 +719,6 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
                 <div style={{ marginTop: "36px", borderTop: "1px solid var(--line-soft)", paddingTop: "22px" }}>
                   <div className="summary-row" style={{ borderBottom: "none" }}>
                     <div>
@@ -672,9 +729,7 @@ export default function App() {
                   <div className="summary-row" style={{ borderBottom: "none", background: "rgba(217,164,65,.04)", padding: "16px", borderRadius: "10px", marginTop: "14px" }}>
                     <div>
                       <span style={{ fontSize: ".84rem", color: "var(--muted)", display: "block" }}>Preço Médio Estimado / Unidade</span>
-                      <span className="summary-value highlight" style={{ fontSize: "1.6rem" }}>
-                        R$ {calculatePrice().toFixed(2)}
-                      </span>
+                      <span className="summary-value highlight" style={{ fontSize: "1.6rem" }}>R$ {calculatePrice().toFixed(2)}</span>
                     </div>
                     <span style={{ fontSize: ".74rem", color: "var(--muted)", maxWidth: "140px", textAlign: "right" }}>
                       *Faturamento mensal em fatura única B2B para clínicas cadastradas.
@@ -698,10 +753,10 @@ export default function App() {
 
           <div className="gallery-grid">
             {[
-              { src: "/post-01-digital.png", label: "Tudo começou no digital", delay: "" },
-              { src: "/post-02-cad.png",     label: "Projetos CAD",            delay: "d1" },
-              { src: "/post-03-fluxos.png",  label: "Fluxos digitais",         delay: "d2" },
-              { src: "/post-04-tecnologia.png", label: "Tecnologia aplicada",  delay: "d3" },
+              { src: "/post-01-digital.png",     label: "Tudo começou no digital",    delay: "" },
+              { src: "/post-02-cad.png",          label: "Projetos CAD",               delay: "d1" },
+              { src: "/post-03-fluxos.png",       label: "Fluxos digitais",            delay: "d2" },
+              { src: "/post-04-tecnologia.png",   label: "Tecnologia aplicada",        delay: "d3" },
             ].map((g, i) => (
               <div key={i} className={`g-card reveal ${g.delay}`} onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
                 <img src={g.src} alt={g.label} />
@@ -730,8 +785,8 @@ export default function App() {
           <div className="testimonials-grid">
             {[
               { initials:"DR", name:"Dr. Daniel Rodrigues", clinic:"Reabilitação Oral & Estética — CRO 2942-RO", text:"Desde que migramos para o fluxo 100% digital com a Macrov Lab, o tempo de cadeira dos meus pacientes reduziu muito. As lentes de contato em e.max encaixam perfeitamente na primeira prova, com zero necessidade de ajustes." },
-              { initials:"AM", name:"Dra. Aline Medeiros", clinic:"Implantodontista — CRO 4108-RO", text:"O suporte deles é o grande diferencial. Sempre que tenho um caso complexo de implante múltiplo, o designer me chama em videoconferência no Exocad para refinarmos juntos antes da fresagem. Isso me traz uma segurança clínica absurda." },
-              { initials:"RC", name:"Dr. Ricardo Costa", clinic:"Clínica Sorriso Moderno — CRO 3319-RO", text:"Enviamos o STL pela manhã e no final da tarde a coroa de Zircônia Multilayer pintada e glazeada estava no consultório. Impressionante a agilidade no serviço Express. Trabalho impecável." },
+              { initials:"AM", name:"Dra. Aline Medeiros",  clinic:"Implantodontista — CRO 4108-RO",              text:"O suporte deles é o grande diferencial. Sempre que tenho um caso complexo de implante múltiplo, o designer me chama em videoconferência no Exocad para refinarmos juntos antes da fresagem. Isso me traz uma segurança clínica absurda." },
+              { initials:"RC", name:"Dr. Ricardo Costa",    clinic:"Clínica Sorriso Moderno — CRO 3319-RO",       text:"Enviamos o STL pela manhã e no final da tarde a coroa de Zircônia Multilayer pintada e glazeada estava no consultório. Impressionante a agilidade no serviço Express. Trabalho impecável." },
             ].map((t, i) => (
               <div key={i} className={`glass-panel test-card reveal ${i > 0 ? `d${i}` : ""}`}>
                 <p className="test-text">{t.text}</p>
@@ -774,8 +829,8 @@ export default function App() {
               </p>
 
               {[
-                { icon: <PhoneIcon />, label: "WhatsApp Suporte Técnico", content: <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" style={{ color: "var(--ink)", fontWeight: "bold" }}>(69) 99999-0000</a> },
-                { icon: <ToothIcon />, label: "E-mail de Cadastro", content: <a href="mailto:macrovlab@gmail.com" style={{ color: "var(--ink)", fontWeight: "bold" }}>macrovlab@gmail.com</a>, iconColor: "var(--accent-purple)" },
+                { icon: <PhoneIcon />, label: "WhatsApp Suporte Técnico",  content: <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" style={{ color: "var(--ink)", fontWeight: "bold" }}>(69) 99999-0000</a> },
+                { icon: <ToothIcon />, label: "E-mail de Cadastro",        content: <a href="mailto:macrovlab@gmail.com" style={{ color: "var(--ink)", fontWeight: "bold" }}>macrovlab@gmail.com</a>, iconColor: "var(--accent-purple)" },
                 { icon: <CalendarIcon />, label: "Localização do Laboratório", content: <span style={{ color: "var(--ink)", fontWeight: "bold" }}>Porto Velho, Rondônia — RO</span> },
               ].map((item, i) => (
                 <div key={i} className="contact-info-item">
@@ -788,8 +843,7 @@ export default function App() {
               ))}
 
               <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="btn btn-gold btn-pulse" style={{ marginTop: "24px", width: "100%" }}>
-                <PhoneIcon />
-                Falar no WhatsApp
+                <PhoneIcon /> Falar no WhatsApp
               </a>
             </div>
           </div>
@@ -800,6 +854,7 @@ export default function App() {
       <section className="cta-section" id="contato">
         <div className="container">
           <div className="cta-box reveal">
+            <ParticleCanvas opts={{ density: 0.00006, maxLink: 120, speed: 0.12, sizeMul: 0.85 }} />
             <div>
               <span className="eyebrow">Vamos evoluir juntos</span>
               <h2 style={{ marginTop: "18px" }}>Pronto para entregar <b className="gold-text">sorrisos perfeitos?</b></h2>
@@ -853,9 +908,9 @@ export default function App() {
             <div>
               <h4 className="footer-title">Contato</h4>
               <ul className="footer-links">
-                <li><a href="https://wa.me/5569999990000" target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a></li>
-                <li><a href="mailto:macrovlab@gmail.com" className="footer-link">macrovlab@gmail.com</a></li>
-                <li><a href="https://instagram.com/macrovlab" target="_blank" rel="noopener noreferrer" className="footer-link">@macrovlab</a></li>
+                <li><a href="https://wa.me/5569999990000"                  target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a></li>
+                <li><a href="mailto:macrovlab@gmail.com"                   className="footer-link">macrovlab@gmail.com</a></li>
+                <li><a href="https://instagram.com/macrovlab"              target="_blank" rel="noopener noreferrer" className="footer-link">@macrovlab</a></li>
               </ul>
             </div>
           </div>
@@ -866,17 +921,10 @@ export default function App() {
             </span>
             <div className="social-links">
               <a href="https://instagram.com/macrovlab" target="_blank" rel="noreferrer" className="social-link" aria-label="Instagram">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <rect x="3" y="3" width="18" height="18" rx="5"/>
-                  <circle cx="12" cy="12" r="4"/>
-                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
-                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
               </a>
               <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="social-link" aria-label="WhatsApp">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z"/>
-                  <path d="M8.5 8.5c-.3 1.5 2.3 5.2 4 6 .8.4 1.8.6 2.5-.2.4-.5.3-1-.2-1.4-.6-.4-1.4-.9-2-.3-.4.4-1.6-.4-2.3-1.6-.5-.9.1-1.3.4-1.8.3-.5.1-1.1-.3-1.5-.4-.4-1.2-.5-1.8 0Z" fill="currentColor" stroke="none"/>
-                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z"/><path d="M8.5 8.5c-.3 1.5 2.3 5.2 4 6 .8.4 1.8.6 2.5-.2.4-.5.3-1-.2-1.4-.6-.4-1.4-.9-2-.3-.4.4-1.6-.4-2.3-1.6-.5-.9.1-1.3.4-1.8.3-.5.1-1.1-.3-1.5-.4-.4-1.2-.5-1.8 0Z" fill="currentColor" stroke="none"/></svg>
               </a>
             </div>
           </div>
