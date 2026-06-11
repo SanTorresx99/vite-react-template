@@ -1,88 +1,77 @@
 // src/react-app/App.tsx
+// MACROVLAB — Landing cinematográfica · Identidade Azul + Dourado
 
 import React, { useState, useEffect, useRef } from "react";
 
-// Inline Custom SVG Icons to ensure zero external dependency errors and premium styling control
+/* ─── SVG Icons ─── */
 const ToothIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-    <path d="M12 2C8.5 2 6.5 4 6.5 7.5c0 2.5 1.5 4.5 2 6.5.3 1.2.5 3 0 4.5-.3.9-.9 1.5-1.5 2.5C6 22.5 8 22 10.5 22c1 0 1.5-.5 1.5-1.5 0 1 .5 1.5 1.5 1.5 2.5 0 4.5.5 3.5-1.5-.6-1-1.2-1.6-1.5-2.5-.5-1.5-.3-3.3 0-4.5.5-2 2-4 2-6.5C17.5 4 15.5 2 12 2z" />
-    <path d="M9 7c0-1 1-1.5 2-1.5" />
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+    <path d="M12 4c-3 0-4 2-4 5 0 4 1.2 11 2.4 11 .9 0 1-3 1.6-3s.7 3 1.6 3c1.2 0 2.4-7 2.4-11 0-3-1-5-4-5Z"/>
   </svg>
 );
 
 const ScanIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <path d="M12 8v8" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
+    <rect x="3" y="5" width="18" height="11" rx="1.5"/>
+    <path d="M8 20h8M12 16v4"/>
+    <path d="M8.5 11c1-1.6 2-2.2 3.5-2.2S14.5 9.4 15.5 11"/>
   </svg>
 );
 
 const CpuIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
-    <rect x="9" y="9" width="6" height="6" />
-    <line x1="9" y1="1" x2="9" y2="4" />
-    <line x1="15" y1="1" x2="15" y2="4" />
-    <line x1="9" y1="20" x2="9" y2="23" />
-    <line x1="15" y1="20" x2="15" y2="23" />
-    <line x1="20" y1="9" x2="23" y2="9" />
-    <line x1="20" y1="15" x2="23" y2="15" />
-    <line x1="1" y1="9" x2="4" y2="9" />
-    <line x1="1" y1="15" x2="4" y2="15" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
+    <rect x="4" y="4" width="16" height="16" rx="2"/>
+    <rect x="9" y="9" width="6" height="6"/>
+    <line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/>
+    <line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
+    <line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/>
+    <line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/>
   </svg>
 );
 
 const ShieldCheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    <path d="m9 12 2 2 4-4" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
+    <path d="M12 3l7 4v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V7l7-4Z"/>
+    <path d="m9 12 2 2 4-4"/>
   </svg>
 );
 
 const CalendarIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
 );
 
 const PhoneIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
   </svg>
 );
 
 const SparklesIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-    <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5Z" />
-    <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="16" height="16">
+    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
   </svg>
 );
 
-const ArrowRightIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
+const ArrowRight = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="12 5 19 12 12 19"/>
   </svg>
 );
 
 const CheckIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <polyline points="20 6 9 17 4 12" />
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+    <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
 
-interface FAQItemProps {
-  question: string;
-  answer: string;
-}
+/* ─── FAQ Accordion ─── */
+interface FAQItemProps { question: string; answer: string; }
 
 const FAQAccordionItem: React.FC<FAQItemProps> = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,30 +80,31 @@ const FAQAccordionItem: React.FC<FAQItemProps> = ({ question, answer }) => {
       <div className="faq-header">
         <span className="faq-question">{question}</span>
         <span className="faq-toggle-icon" style={{ transform: isOpen ? "rotate(45deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M9 3.75V14.25" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             <path d="M3.75 9H14.25" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         </span>
       </div>
       <div className="faq-body">
-        <p style={{ fontSize: "0.95rem" }}>{answer}</p>
+        <p style={{ fontSize: ".94rem" }}>{answer}</p>
       </div>
     </div>
   );
 };
 
+/* ─── Main App ─── */
 export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
-  
-  // Before/After interactive slider states
+
+  // Before/After slider
   const [sliderPos, setSliderPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Workflow states
+  // Workflow tabs
   const [activeStep, setActiveStep] = useState(0);
 
-  // Case Calculator states
+  // Case Calculator
   const [workType, setWorkType] = useState("coroa_zirconia");
   const [material, setMaterial] = useState("zirconia_mult");
   const [toothShade, setToothShade] = useState("A2");
@@ -126,243 +116,166 @@ export default function App() {
   const [caseCode, setCaseCode] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
 
-  // Track scroll position for navbar
+  // Scroll watch
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Handle slide movement
+  // Reveal-on-scroll
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach(e => e.isIntersecting && e.target.classList.add("in")),
+      { threshold: 0.15 }
+    );
+    els.forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  // Slider handlers
   const handleSliderMove = (clientX: number) => {
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
-      setSliderPos(percentage);
+      const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+      setSliderPos(pct);
     }
   };
+  const onMouseMove = (e: React.MouseEvent) => handleSliderMove(e.clientX);
+  const onTouchMove = (e: React.TouchEvent) => { if (e.touches[0]) handleSliderMove(e.touches[0].clientX); };
 
-  const onMouseMove = (e: React.MouseEvent) => {
-    handleSliderMove(e.clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (e.touches[0]) {
-      handleSliderMove(e.touches[0].clientX);
-    }
-  };
-
-  // Calculate price and date based on options
+  // Price calculator
   const calculatePrice = () => {
-    let basePrice = 0;
-    
-    switch (workType) {
-      case "coroa_zirconia":
-        basePrice = 390;
-        break;
-      case "lente_emax":
-        basePrice = 480;
-        break;
-      case "sobre_implante":
-        basePrice = 710;
-        break;
-      case "placa_miorrelaxante":
-        basePrice = 190;
-        break;
-      default:
-        basePrice = 390;
-    }
-
-    // Material additions
-    if (material === "emax_cad") {
-      basePrice += 50;
-    } else if (material === "zirconia_mult_4d") {
-      basePrice += 40;
-    }
-
-    // Urgency additions
-    if (urgency === "express") {
-      basePrice += 90;
-    }
-
-    return basePrice;
+    const base: Record<string, number> = {
+      coroa_zirconia: 390, lente_emax: 480, sobre_implante: 710, placa_miorrelaxante: 190
+    };
+    let p = base[workType] ?? 390;
+    if (material === "emax_cad") p += 50;
+    if (material === "zirconia_mult_4d") p += 40;
+    if (urgency === "express") p += 90;
+    return p;
   };
 
-  // Calculate estimated delivery date
+  // Delivery date
   useEffect(() => {
     const today = new Date();
-    let businessDaysToAdd = urgency === "express" ? 2 : 5;
-    
-    // Add business days manually
+    let days = urgency === "express" ? 2 : 5;
     let count = 0;
-    const finalDate = new Date(today);
-    while (count < businessDaysToAdd) {
-      finalDate.setDate(finalDate.getDate() + 1);
-      const day = finalDate.getDay();
-      if (day !== 0 && day !== 6) { // Skip Sat and Sun
-        count++;
-      }
+    const d = new Date(today);
+    while (count < days) {
+      d.setDate(d.getDate() + 1);
+      const wd = d.getDay();
+      if (wd !== 0 && wd !== 6) count++;
     }
-
-    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    setDeliveryDate(finalDate.toLocaleDateString('pt-BR', options));
+    setDeliveryDate(d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" }));
   }, [urgency, workType]);
 
   const handleRegisterCase = (e: React.FormEvent) => {
     e.preventDefault();
     if (!dentistName || !dentistCro || !dentistPhone) {
-      alert("Por favor, preencha todos os campos do dentista para simular o caso.");
+      alert("Por favor, preencha todos os campos do dentista.");
       return;
     }
-    
-    // Generate simulated case code
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const stateSuffix = "RO";
-    setCaseCode(`MCV-2026-${randomNum}-${stateSuffix}`);
+    const code = `MCV-2026-${Math.floor(1000 + Math.random() * 9000)}-RO`;
+    setCaseCode(code);
     setCaseSubmitted(true);
   };
 
-  const resetForm = () => {
-    setCaseSubmitted(false);
-    setDentistName("");
-    setDentistCro("");
-    setDentistPhone("");
-  };
+  const resetForm = () => { setCaseSubmitted(false); setDentistName(""); setDentistCro(""); setDentistPhone(""); };
 
+  // Workflow steps
   const workflowSteps = [
-    {
-      title: "Escaneamento & Envio",
-      tag: "Etapa 01",
-      tech: "Sistemas STL/PLY Abertos",
-      desc: "O dentista realiza o escaneamento intraoral do paciente em seu próprio consultório. O arquivo de malha 3D (STL ou PLY) é enviado diretamente para nós por meio do nosso formulário ou integradores como Medit Link, Align iTero, ou Carestream.",
-      stat: "Compatibilidade: 100%"
-    },
-    {
-      title: "Planejamento CAD",
-      tag: "Etapa 02",
-      tech: "Exocad DentalDB & 3Shape",
-      desc: "Nossos projetistas especializados importam o modelo digital no software CAD para desenhar a coroa ou lente de contato. Mapeamos com precisão micrométrica a margem de término, pontos de contato e a oclusão fisiológica correta.",
-      stat: "Margem de Erro: < 5 mícrons"
-    },
-    {
-      title: "Fresagem CNC & CAM",
-      tag: "Etapa 03",
-      tech: "Fresadoras Alemãs de 5 Eixos",
-      desc: "O projeto CAD é enviado à central de usinagem. Nossa fresadora esculpe o bloco de zircônia multilayer ou dissilicato de lítio utilizando brocas diamantadas resfriadas a ar, garantindo estabilidade e integridade estrutural extrema.",
-      stat: "Velocidade: 60.000 RPM"
-    },
-    {
-      title: "Arte e Maquiagem",
-      tag: "Etapa 04",
-      tech: "Cerâmica Feldspática Artesanal",
-      desc: "As peças fresadas passam pela sinterização térmica e, em seguida, são submetidas à maquiagem artística realizada à mão por técnicos experientes. Aplicamos texturas e cores na escala Vita para obter translucidez e opalescência idênticas aos dentes naturais.",
-      stat: "Personalização: Exclusiva"
-    },
-    {
-      title: "Logística Inteligente",
-      tag: "Etapa 05",
-      tech: "Desinfecção UV-C & Entrega Express",
-      desc: "Após o controle de qualidade final em microscópio, as próteses são esterilizadas em câmara UV-C, embaladas a vácuo em embalagem cirúrgica e despachadas por portador expresso para o seu consultório em tempo recorde.",
-      stat: "Logística: Rastreamento em tempo real"
-    }
+    { title: "Escaneamento & Envio", tag: "Etapa 01", tech: "Sistemas STL/PLY Abertos", desc: "O dentista realiza o escaneamento intraoral do paciente e envia o arquivo de malha 3D (STL ou PLY) diretamente para nós por meio do nosso formulário ou via Medit Link, Align iTero ou Carestream.", stat: "Compatibilidade: 100%" },
+    { title: "Planejamento CAD", tag: "Etapa 02", tech: "Exocad DentalDB & 3Shape", desc: "Nossos projetistas importam o modelo digital no software CAD e desenham a coroa ou faceta com precisão micrométrica, mapeando margem de término, pontos de contato e oclusão fisiológica.", stat: "Margem de Erro: < 5 mícrons" },
+    { title: "Fresagem CNC & CAM", tag: "Etapa 03", tech: "Fresadoras Alemãs de 5 Eixos", desc: "O projeto CAD é enviado à central de usinagem. Nossa fresadora esculpe o bloco de zircônia multilayer ou dissilicato de lítio com brocas diamantadas resfriadas a ar, garantindo estabilidade e integridade estrutural extrema.", stat: "Velocidade: 60.000 RPM" },
+    { title: "Arte e Maquiagem", tag: "Etapa 04", tech: "Cerâmica Feldspática Artesanal", desc: "As peças fresadas passam pela sinterização térmica e, em seguida, pela maquiagem artística realizada à mão por técnicos experientes. Aplicamos texturas e cores na escala Vita para translucidez e opalescência idênticas ao dente natural.", stat: "Personalização: Exclusiva" },
+    { title: "Logística Inteligente", tag: "Etapa 05", tech: "Desinfecção UV-C & Entrega Express", desc: "Após controle de qualidade em microscópio, as próteses são esterilizadas em câmara UV-C, embaladas a vácuo em embalagem cirúrgica e despachadas por portador expresso para o seu consultório.", stat: "Logística: Rastreamento em tempo real" },
   ];
 
   return (
     <>
-      {/* Background Decor */}
-      <div className="bg-grid"></div>
-      <div className="bg-glow-1"></div>
-      <div className="bg-glow-2"></div>
+      {/* Background decorative */}
+      <div className="bg-grid" />
+      <div className="bg-glow-1" />
+      <div className="bg-glow-2" />
 
-      {/* Navbar */}
+      {/* ── NAVBAR ── */}
       <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
         <div className="container">
-          <a href="#hero" className="logo-brand">
-            <ToothIcon />
-            <span>MACROV<span className="gradient-text-teal">LAB</span></span>
-            <span className="logo-dot"></span>
+          <a href="#top" className="logo-brand" aria-label="MACROVLAB">
+            <img src="/emblem.png" alt="MACROVLAB emblem" className="logo-emblem" />
+            <span className="logo-wordmark">MACROV<span className="lab">LAB</span></span>
+            <span className="logo-dot" />
           </a>
           <ul className="nav-links">
-            <li><a href="#servicos" className="nav-link">Serviços</a></li>
-            <li><a href="#estetica" className="nav-link">Estética 3D</a></li>
-            <li><a href="#workflow" className="nav-link">Fluxo Digital</a></li>
-            <li><a href="#simulador" className="nav-link">Simulador de Envio</a></li>
-            <li><a href="#faq" className="nav-link">Dúvidas</a></li>
-            <li><a href="#simulador" className="btn btn-secondary nav-link" style={{ padding: "8px 20px" }}>Acessar Portal</a></li>
+            <li><a href="#manifesto" className="nav-link">Manifesto</a></li>
+            <li><a href="#jornada"   className="nav-link">A Jornada</a></li>
+            <li><a href="#solucoes"  className="nav-link">Soluções</a></li>
+            <li><a href="#simulador" className="nav-link">Simulador</a></li>
+            <li><a href="#galeria"   className="nav-link">Galeria</a></li>
+            <li><a href="#contato"   className="btn btn-gold nav-link" style={{ padding: "10px 20px", borderRadius: "999px" }}>Fale conosco</a></li>
           </ul>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section id="hero" className="hero">
+      {/* ── HERO ── */}
+      <header className="hero" id="top">
         <div className="container">
           <div className="hero-grid">
             <div className="hero-content">
-              <div className="hero-tag animate-float">
+              <div className="hero-tag">
                 <SparklesIcon />
-                <span>Fluxo 100% Digital Integrado</span>
+                <span>Prótese Dentária · CADDesign Premium</span>
               </div>
-              <h1>
-                Precisão <span className="gradient-text-teal">Microscópica</span>, Estética Natural.
+
+              <h1 style={{ marginTop: "20px", marginBottom: "20px" }}>
+                Estamos<br />
+                <b className="gold-text">evoluindo.</b>
               </h1>
-              <p style={{ fontSize: "1.25rem", marginBottom: "32px", color: "var(--text-secondary)" }}>
-                Elevando o padrão das reabilitações protéticas. Conecte o scanner do seu consultório à nossa central CAD/CAM e ofereça restaurações perfeitas em zircônia e dissilicato em até 48 horas.
+
+              <p style={{ fontSize: "clamp(17px, 1.5vw, 20px)", maxWidth: "520px", marginTop: "10px" }}>
+                Da tradição à inovação. Unimos arte protética e tecnologia CAD/CAM de ponta para moldar o futuro de sorrisos perfeitos — com precisão de micra.
               </p>
-              
+
               <div className="hero-buttons">
-                <a href="#simulador" className="btn btn-primary btn-pulse">
-                  Simular Envio de Caso
-                  <ArrowRightIcon />
+                <a href="#solucoes" className="btn btn-gold btn-pulse">
+                  Conhecer o laboratório <ArrowRight />
                 </a>
-                <a href="#workflow" className="btn btn-secondary">
-                  Ver Fluxo de Trabalho
+                <a href="#simulador" className="btn btn-ghost">
+                  Enviar um caso
                 </a>
               </div>
 
               <div className="hero-stats">
                 <div className="stat-item">
-                  <span className="stat-num">99.9%</span>
-                  <span className="stat-label">Adaptação Clínica Sem Ajuste</span>
+                  <span className="stat-num">100%</span>
+                  <span className="stat-label">Fluxo digital</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-num">72h</span>
-                  <span className="stat-label">Prazo Médio de Entrega</span>
+                  <span className="stat-num">±0,01<span style={{ fontSize: "1rem" }}>mm</span></span>
+                  <span className="stat-label">Precisão</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-num">&lt; 5µ</span>
-                  <span className="stat-label">Precisão CAD/CAM alemã</span>
+                  <span className="stat-num">CAD/CAM</span>
+                  <span className="stat-label">Tecnologia própria</span>
                 </div>
               </div>
             </div>
 
             <div className="hero-visual">
               <div className="visual-wrapper">
-                <img 
-                  src="/dental_zirconia_crown.png" 
-                  alt="Modelo 3D de Coroa de Zircônia Macrov Lab" 
-                  className="visual-image" 
-                />
+                <div className="visual-halo" />
+                <img src="/scanner.png" alt="Scanner e fresadora de prótese dentária MACROVLAB" className="visual-image" />
                 <div className="floating-badge badge-top-right">
-                  <div className="badge-icon">
-                    <CpuIcon />
-                  </div>
+                  <div className="badge-icon"><CpuIcon /></div>
                   <div className="badge-text">
                     <span className="badge-title">Zircônia 4D-Pro</span>
                     <span className="badge-sub">Translucidez Multicamada</span>
                   </div>
                 </div>
-                
                 <div className="floating-badge badge-bottom-left">
-                  <div className="badge-icon" style={{ color: "var(--accent-purple)" }}>
-                    <ShieldCheckIcon />
-                  </div>
+                  <div className="badge-icon" style={{ color: "var(--accent-purple)" }}><ShieldCheckIcon /></div>
                   <div className="badge-text">
                     <span className="badge-title">Garantia Macrov</span>
                     <span className="badge-sub">5 Anos de Assistência</span>
@@ -372,136 +285,177 @@ export default function App() {
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Services Section */}
-      <section id="servicos" className="section" style={{ background: "rgba(11, 15, 25, 0.4)", borderTop: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
+        {/* Scroll cue */}
+        <div className="scrollcue">
+          <span>Role</span>
+          <span className="bar" />
+        </div>
+      </header>
+
+      {/* ── REBRAND BAND ── */}
+      <section className="rebrand-band reveal">
         <div className="container">
-          <div className="section-header">
-            <span className="section-tag">Nossos Produtos</span>
-            <h2>Próteses de Alta Performance</h2>
-            <p className="section-desc">Restaurações anatômicas sob medida projetadas digitalmente e finalizadas por mestres ceramistas.</p>
-          </div>
-
-          <div className="cards-grid">
-            {/* Service 1 */}
-            <div className="glass-panel service-card">
-              <div className="service-card-img-wrapper">
-                <img src="/dental_veneers.png" alt="Lentes de Contato" className="service-card-img" />
-              </div>
-              <div className="service-card-content">
-                <div className="card-icon-container">
-                  <ToothIcon />
-                </div>
-                <h3>Lentes de Contato & Facetas</h3>
-                <p style={{ marginBottom: "20px" }}>
-                  Facetas cerâmicas ultra finas (até 0.3mm de espessura) fabricadas em dissilicato de lítio (original IPS e.max). Entrega estética natural insuperável, com adaptação marginal impecável.
-                </p>
-                <div className="card-badge">Ideal para Estética Anterior</div>
-              </div>
+          <div className="rebrand-wrap">
+            <div className="rebrand-side">
+              <span className="rebrand-chip">Antes</span>
+              <div className="rebrand-old"><span>TM</span></div>
+              <span className="rebrand-chip" style={{ opacity: .6 }}>Studio Digital</span>
             </div>
-
-            {/* Service 2 */}
-            <div className="glass-panel service-card" style={{ borderColor: "rgba(139, 92, 246, 0.2)" }}>
-              <div className="service-card-img-wrapper">
-                <img src="/dental_zirconia_crown.png" alt="Coroas em Zircônia" className="service-card-img" />
-              </div>
-              <div className="service-card-content">
-                <div className="card-icon-container" style={{ background: "rgba(139, 92, 246, 0.08)", color: "var(--accent-purple)" }}>
-                  <CpuIcon />
-                </div>
-                <h3>Coroas em Zircônia Premium</h3>
-                <p style={{ marginBottom: "20px" }}>
-                  Coroas totais monolíticas de zircônia multicamadas (Yttria graduada). Excelente resistência flexural de 1200 MPa combinada com translucidez ideal. Acabamento maquiado ou estratificado.
-                </p>
-                <div className="card-badge">Perfeita para Posteriores e Pontes</div>
-              </div>
+            <div className="rebrand-mid">
+              <div className="rebrand-title">Evoluímos</div>
+              <span className="rebrand-arrow">→</span>
+              <p className="rebrand-desc">
+                A mesma essência, agora em uma nova era de tecnologia e inovação. Não mudamos apenas o nome — construímos uma identidade que representa tudo aquilo que nos tornamos.
+              </p>
             </div>
-
-            {/* Service 3 */}
-            <div className="glass-panel service-card">
-              <div className="service-card-img-wrapper">
-                <img src="/dental_cad_design.png" alt="Restaurações sobre Implantes" className="service-card-img" />
-              </div>
-              <div className="service-card-content">
-                <div className="card-icon-container">
-                  <ScanIcon />
-                </div>
-                <h3>Restaurações sobre Implantes</h3>
-                <p style={{ marginBottom: "20px" }}>
-                  Pilares personalizados (Abutments) em titânio e zircônia híbrida acoplados a coroas cimentadas ou aparafusadas. Ajuste micrométrico que previne afrouxamento de parafusos e peri-implantite.
-                </p>
-                <div className="card-badge">Alta Tecnologia Cirúrgica</div>
-              </div>
+            <div className="rebrand-side">
+              <span className="rebrand-chip">Agora</span>
+              <div className="rebrand-new"><img src="/emblem.png" alt="MACROVLAB" /></div>
+              <span className="rebrand-chip gold-text" style={{ fontWeight: 700 }}>MACROVLAB</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Before/After Visualizer Section */}
-      <section id="estetica" className="section">
+      {/* ── MANIFESTO ── */}
+      <section className="section" id="manifesto" style={{ background: "linear-gradient(180deg, var(--bg-2), var(--panel))", textAlign: "center" }}>
+        <div className="container">
+          <span className="eyebrow center reveal">A evolução é nossa essência</span>
+          <h2 className="reveal d1" style={{ fontWeight: 300, fontSize: "clamp(34px,5.2vw,72px)", marginTop: "28px", maxWidth: "1000px", margin: "28px auto 0" }}>
+            <span style={{ fontWeight: 300, display: "block" }}>Da tradição</span>
+            à <b className="gold-text">inovação.</b>
+          </h2>
+          <p className="reveal d2" style={{ marginTop: "28px", fontSize: "19px", maxWidth: "560px", margin: "28px auto 0" }}>
+            Cada avanço molda o futuro de sorrisos perfeitos.
+          </p>
+        </div>
+      </section>
+
+      {/* ── JORNADA / PROCESS ── */}
+      <section className="section" id="jornada" style={{ background: "var(--panel)", borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">Estética de Elite</span>
-            <h2>Da Malha Digital ao Sorriso Real</h2>
-            <p className="section-desc">Deslize o cursor sobre a imagem para ver a precisão da estrutura interna de malha CAD (esquerda) se transformando no brilho natural da cerâmica finalizada (direita).</p>
+            <span className="eyebrow center reveal">A jornada digital</span>
+            <h2 className="reveal d1">Do papel ao sorriso, <b className="gold-text">100% digital.</b></h2>
+            <p className="section-desc reveal d2">Um fluxo contínuo que une precisão, inovação e eficiência em cada etapa do trabalho protético.</p>
           </div>
 
-          <div className="comparison-container" ref={containerRef} onMouseMove={onMouseMove} onTouchMove={onTouchMove}>
+          <div className="process-grid">
+            {[
+              {
+                n:"01", title:"Tudo começou no", hl:"digital",
+                desc:"Do esboço à era digital: a base de conhecimento e o olhar artesanal que sustentam cada projeto.",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5V5.5Z"/><path d="M20 5.5C20 4.7 19.3 4 18.5 4H13v15h5.5c.8 0 1.5-.7 1.5-1.5V5.5Z"/><path d="M7 8h2M7 11h2M15 8h2M15 11h2"/></svg>
+              },
+              {
+                n:"02", title:"Projetos", hl:"CAD",
+                desc:"Planejamento digital com precisão para resultados previsíveis e totalmente personalizados.",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/><path d="M9.5 10.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5"/></svg>
+              },
+              {
+                n:"03", title:"Fluxos", hl:"digitais",
+                desc:"Integração completa — escaneamento, design, planejamento e fabricação em um só ecossistema.",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="6" r="2.4"/><circle cx="5" cy="18" r="2.4"/><circle cx="19" cy="18" r="2.4"/><path d="M12 8.4v3.6M12 12l-5.3 3.8M12 12l5.3 3.8"/></svg>
+              },
+              {
+                n:"04", title:"Tecnologia", hl:"aplicada",
+                desc:"Soluções que unem precisão, inovação e eficiência para transformar sorrisos.",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="7" r="3.2"/><path d="M9.4 9.4 8 22M14.6 9.4 16 22M8.6 14h6.8M8.2 18h7.6"/></svg>
+              }
+            ].map((s, i) => (
+              <div key={i} className={`step-card reveal ${i > 0 ? `d${i}` : ""}`}>
+                <div className="step-nl" />
+                <div className="step-card-top">
+                  <span className="step-num">{s.n}</span>
+                  <span className="step-ic">{s.icon}</span>
+                </div>
+                <h3>{s.title} <span className="g">{s.hl}</span></h3>
+                <p>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SOLUÇÕES ── */}
+      <section className="section" id="solucoes" style={{ background: "linear-gradient(180deg, var(--bg), var(--panel) 50%, var(--bg))" }}>
+        <div className="container">
+          <div className="section-header">
+            <span className="eyebrow center reveal">Soluções</span>
+            <h2 className="reveal d1">Tecnologia aplicada <b className="gold-text">à odontologia.</b></h2>
+            <p className="section-desc reveal d2">Trabalhos protéticos de alta complexidade entregues com a previsibilidade do fluxo digital.</p>
+          </div>
+
+          <div className="svc-grid">
+            {[
+              {
+                title:"Prótese sobre implante", desc:"Coroas, barras e protocolos parafusados com encaixe passivo e estética natural.", tag:"CAD/CAM · Zircônia", delay:"",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="6" r="3.2"/><path d="M9.4 9 8.5 14h7l-.9-5M9 17h6M9.6 20h4.8"/></svg>
+              },
+              {
+                title:"Coroas & facetas", desc:"Restaurações cerâmicas usinadas com fidelidade de cor, forma e textura.", tag:"Dissilicato · Cerâmica", delay:"d1",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 4c-3 0-4 2-4 5 0 4 1.2 11 2.4 11 .9 0 1-3 1.6-3s.7 3 1.6 3c1.2 0 2.4-7 2.4-11 0-3-1-5-4-5Z"/></svg>
+              },
+              {
+                title:"Planejamento digital", desc:"Design do sorriso (DSD) e mock-up virtual para aprovação antes da execução.", tag:"DSD · Wax-up digital", delay:"d2",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M8 20h8M12 16v4"/><path d="M8.5 11c1-1.6 2-2.2 3.5-2.2S14.5 9.4 15.5 11"/></svg>
+              },
+              {
+                title:"Fluxo digital completo", desc:"Do escaneamento intraoral à fabricação, em um processo integrado e rastreável.", tag:"Scan · Design · Mill", delay:"",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 12A8 8 0 0 1 6.3 17.6"/><path d="M17 3v4h-4M7 21v-4h4"/></svg>
+              },
+              {
+                title:"Atendimento ao dentista", desc:"Suporte técnico próximo, prazos confiáveis e logística para todo o Brasil.", tag:"Parceria clínica", delay:"d1",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 7h14v10H5zM5 7l7 5 7-5"/><circle cx="18" cy="6" r="2.4" fill="currentColor" stroke="none"/></svg>
+              },
+              {
+                title:"Garantia de qualidade", desc:"Conferência dimensional e controle de cada peça antes da entrega final.", tag:"Controle ±0,01mm", delay:"d2",
+                icon:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3l7 4v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V7l7-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+              }
+            ].map((s, i) => (
+              <article key={i} className={`svc reveal ${s.delay}`}>
+                <div className="ic">{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+                <span className="tag">{s.tag}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TECNOLOGIA / SHOWCASE (before/after slider) ── */}
+      <section className="section" id="estetica" style={{ background: "var(--panel)", borderTop: "1px solid var(--line-soft)" }}>
+        <div className="container">
+          <div className="section-header">
+            <span className="eyebrow center reveal">Estética de Elite</span>
+            <h2 className="reveal d1">Da malha digital ao <b className="gold-text">sorriso real.</b></h2>
+            <p className="section-desc reveal d2">Deslize o cursor sobre a imagem para ver a estrutura CAD (esquerda) se transformando no brilho da cerâmica finalizada (direita).</p>
+          </div>
+
+          <div className="comparison-container reveal" ref={containerRef} onMouseMove={onMouseMove} onTouchMove={onTouchMove}>
             <div className="comparison-wrapper">
-              {/* "Before" Side (CAD Wireframe styling) */}
+              {/* Before */}
               <div className="comp-img comp-before" style={{ width: "100%", height: "100%" }}>
-                <img 
-                  src="/dental_zirconia_crown.png" 
-                  alt="CAD Digital Design Model" 
-                  style={{ 
-                    width: "100%", 
-                    height: "100%", 
-                    objectFit: "cover",
-                    filter: "grayscale(1) contrast(1.3) brightness(0.6) sepia(1) hue-rotate(140deg) saturate(3)"
-                  }} 
+                <img src="/post-02-cad.png" alt="Projeto CAD Digital"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(.9) contrast(1.2) brightness(.65) sepia(.8) hue-rotate(170deg) saturate(2.5)" }}
                 />
-                {/* Tech scanline effect overlay */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundImage: 'radial-gradient(circle, transparent 40%, rgba(7, 10, 19, 0.4) 100%), linear-gradient(0deg, rgba(0, 242, 254, 0.1) 1px, transparent 1px)',
-                  backgroundSize: '100% 100%, 100% 4px',
-                  zIndex: 2,
-                  pointerEvents: 'none'
-                }}></div>
+                <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(0deg, rgba(0,180,200,.08) 1px, transparent 1px)", backgroundSize: "100% 4px", zIndex: 2, pointerEvents: "none" }} />
               </div>
-
-              {/* "After" Side (Finished Real Restorations) */}
-              <div 
-                className="comp-img comp-after" 
-                style={{ 
-                  width: "100%", 
-                  height: "100%",
-                  clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)`
-                }}
-              >
-                <img 
-                  src="/dental_zirconia_crown.png" 
-                  alt="Restauração de Cerâmica Finalizada Macrov" 
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                />
+              {/* After */}
+              <div className="comp-img comp-after" style={{ width: "100%", height: "100%", clipPath: `polygon(${sliderPos}% 0, 100% 0, 100% 100%, ${sliderPos}% 100%)` }}>
+                <img src="/post-01-digital.png" alt="Restauração Finalizada" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
-
-              {/* Slider Handle */}
+              {/* Handle */}
               <div className="comp-slider-handle" style={{ left: `${sliderPos}%` }}>
                 <div className="comp-slider-button">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="8 18 2 12 8 6" />
-                    <polyline points="16 6 22 12 16 18" />
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="8 18 2 12 8 6"/>
+                    <polyline points="16 6 22 12 16 18"/>
                   </svg>
                 </div>
               </div>
-
-              {/* Labels */}
               <div className="comp-label label-before">Modelo CAD Virtual</div>
               <div className="comp-label label-after">Coroa Multilayer Pronta</div>
             </div>
@@ -509,33 +463,43 @@ export default function App() {
         </div>
       </section>
 
-      {/* Digital Workflow Section (CAD/CAM Process) */}
-      <section id="workflow" className="section" style={{ background: "rgba(11, 15, 25, 0.3)", borderTop: "1px solid var(--border-color)" }}>
+      {/* ── SHOWCASE / CAD DESIGNER ── */}
+      <section className="section" id="tecnologia" style={{ borderTop: "1px solid var(--line-soft)" }}>
+        <div className="container">
+          <div className="showcase-grid">
+            <div className="showcase-media reveal">
+              <img src="/post-02-cad.png" alt="Software CAD Designer planejando arcada dentária" />
+            </div>
+            <div className="reveal d1">
+              <span className="eyebrow">CAD Designer</span>
+              <h2 style={{ marginTop: "20px" }}>Planejamento com <b className="gold-text">precisão absoluta.</b></h2>
+              <ul className="showcase-list">
+                <li><span className="ck">✓</span><span><b>Escaneamento de alta resolução</b> — modelos digitais fiéis em poucos minutos.</span></li>
+                <li><span className="ck">✓</span><span><b>Design paramétrico</b> — morphing, espessura e oclusão controladas no detalhe.</span></li>
+                <li><span className="ck">✓</span><span><b>Resultados previsíveis</b> — o que se projeta é exatamente o que se entrega.</span></li>
+                <li><span className="ck">✓</span><span><b>Fabricação integrada</b> — usinagem e impressão diretamente do projeto aprovado.</span></li>
+              </ul>
+              <a href="#simulador" className="btn btn-ghost" style={{ marginTop: "34px" }}>Solicitar um projeto <ArrowRight /></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── WORKFLOW (CAD/CAM Process tabs) ── */}
+      <section className="section" id="workflow" style={{ background: "var(--panel)", borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">Fluxo Operacional</span>
-            <h2>A Jornada do Seu Trabalho</h2>
-            <p className="section-desc">Entenda como a integração entre odontologia digital e processos industriais reduz prazos de entrega e elimina reajustes clínicos.</p>
+            <span className="eyebrow center reveal">Fluxo Operacional</span>
+            <h2 className="reveal d1">A jornada do <b className="gold-text">seu trabalho.</b></h2>
+            <p className="section-desc reveal d2">Entenda como a integração entre odontologia digital e processos industriais reduz prazos e elimina reajustes clínicos.</p>
           </div>
 
           <div className="workflow-nav">
             {workflowSteps.map((step, idx) => (
-              <button 
-                key={idx} 
-                className={`workflow-tab-btn ${activeStep === idx ? "active" : ""}`}
-                onClick={() => setActiveStep(idx)}
-              >
+              <button key={idx} className={`workflow-tab-btn ${activeStep === idx ? "active" : ""}`} onClick={() => setActiveStep(idx)}>
                 <span className="step-num-circle" style={{
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  background: activeStep === idx ? "var(--accent-teal)" : "rgba(255,255,255,0.1)",
-                  color: activeStep === idx ? "#070a13" : "var(--text-secondary)",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "0.75rem",
-                  fontWeight: "bold"
+                  background: activeStep === idx ? "var(--gold)" : "rgba(255,255,255,.08)",
+                  color: activeStep === idx ? "#231703" : "var(--muted)"
                 }}>{idx + 1}</span>
                 {step.title}
               </button>
@@ -545,54 +509,29 @@ export default function App() {
           <div className="glass-panel workflow-content">
             <div className="workflow-info">
               <span className="workflow-step-tag">{workflowSteps[activeStep].tag}</span>
-              <h3 style={{ fontSize: "1.8rem", color: "var(--accent-teal)", marginBottom: "8px" }}>
+              <h3 style={{ fontSize: "1.75rem", color: "var(--gold-lt)", marginTop: "8px", marginBottom: "8px" }}>
                 {workflowSteps[activeStep].title}
               </h3>
-              <p style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--text-secondary)", marginBottom: "20px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Tecnologia: <span style={{ color: "var(--text-primary)" }}>{workflowSteps[activeStep].tech}</span>
+              <p style={{ fontSize: ".84rem", fontWeight: 700, color: "var(--muted)", marginBottom: "18px", textTransform: "uppercase", letterSpacing: ".05em" }}>
+                Tecnologia: <span style={{ color: "var(--ink)" }}>{workflowSteps[activeStep].tech}</span>
               </p>
-              <p style={{ marginBottom: "24px", fontSize: "1.05rem" }}>
-                {workflowSteps[activeStep].desc}
-              </p>
-              
-              <div style={{
-                background: "rgba(255,255,255,0.02)",
-                padding: "16px",
-                borderRadius: "8px",
-                borderLeft: "3px solid var(--accent-purple)",
-                fontWeight: "600",
-                color: "var(--text-primary)"
-              }}>
+              <p style={{ marginBottom: "24px", fontSize: "1.03rem" }}>{workflowSteps[activeStep].desc}</p>
+              <div style={{ background: "rgba(217,164,65,.05)", padding: "14px 18px", borderRadius: "8px", borderLeft: "3px solid var(--gold)", fontWeight: 600, color: "var(--ink)" }}>
                 {workflowSteps[activeStep].stat}
               </div>
             </div>
-
             <div className="workflow-visual">
-              <img 
-                src={
-                  activeStep === 0 ? "/dental_cad_design.png" :
-                  activeStep === 1 ? "/dental_cad_design.png" :
-                  activeStep === 2 ? "/dental_lab_setup.png" :
-                  activeStep === 3 ? "/dental_handcraft.png" :
-                  "/dental_finished_smile.png"
-                } 
-                alt={workflowSteps[activeStep].title} 
+              <img
+                src={activeStep === 0 ? "/post-01-digital.png" : activeStep === 1 ? "/post-02-cad.png" : activeStep === 2 ? "/dental_lab_setup.png" : activeStep === 3 ? "/dental_handcraft.png" : "/dental_finished_smile.png"}
+                alt={workflowSteps[activeStep].title}
               />
               <div className="workflow-visual-overlay">
                 <div>
-                  <h4 style={{ color: "var(--accent-teal)", fontSize: "1rem", fontWeight: "700" }}>
-                    {activeStep === 0 ? "Envio Digital de STL" :
-                     activeStep === 1 ? "Modelagem CAD Exocad" :
-                     activeStep === 2 ? "Usinagem CNC Alemã" :
-                     activeStep === 3 ? "Maquiagem Cerâmica Estética" :
-                     "Prótese Cimentada Final"}
+                  <h4 style={{ color: "var(--gold-lt)", fontSize: "1rem", fontWeight: 700 }}>
+                    {["Envio Digital de STL","Modelagem CAD Exocad","Usinagem CNC Alemã","Maquiagem Cerâmica","Prótese Cimentada Final"][activeStep]}
                   </h4>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem" }}>
-                    {activeStep === 0 ? "Importação segura de malha 3D." :
-                     activeStep === 1 ? "Ajuste milimétrico de oclusão." :
-                     activeStep === 2 ? "Fresagem robotizada de 5 eixos." :
-                     activeStep === 3 ? "Glaze e caracterização artística." :
-                     "Entrega e adaptação clínica imediata."}
+                  <p style={{ color: "var(--muted)", fontSize: ".78rem" }}>
+                    {["Importação segura de malha 3D.","Ajuste milimétrico de oclusão.","Fresagem robotizada de 5 eixos.","Glaze e caracterização artística.","Entrega e adaptação imediata."][activeStep]}
                   </p>
                 </div>
               </div>
@@ -601,62 +540,45 @@ export default function App() {
         </div>
       </section>
 
-      {/* Case submission portal simulator */}
-      <section id="simulador" className="section" style={{ borderTop: "1px solid var(--border-color)" }}>
+      {/* ── SIMULADOR DE ENVIO ── */}
+      <section className="section" id="simulador" style={{ borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">Área do Dentista</span>
-            <h2>Portal de Coletas e Envio de Casos</h2>
-            <p className="section-desc">Faça uma simulação de orçamento e prazo de entrega para o primeiro trabalho do seu consultório.</p>
+            <span className="eyebrow center reveal">Área do Dentista</span>
+            <h2 className="reveal d1">Portal de Coletas e <b className="gold-text">Envio de Casos</b></h2>
+            <p className="section-desc reveal d2">Faça uma simulação de orçamento e prazo de entrega para o primeiro trabalho do seu consultório.</p>
           </div>
 
           <div className="glass-panel portal-grid" style={{ padding: "40px" }}>
-            <div className="portal-form-side">
-              <h3 style={{ marginBottom: "24px", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
-                Especificações do Trabalho
-              </h3>
-              
+            <div>
+              <h3 style={{ marginBottom: "24px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "12px" }}>Especificações do Trabalho</h3>
+
               {!caseSubmitted ? (
                 <form onSubmit={handleRegisterCase}>
                   <div className="form-group">
                     <label className="form-label" htmlFor="work-type">Tipo de Restauração</label>
-                    <select 
-                      id="work-type" 
-                      className="form-select"
-                      value={workType}
-                      onChange={(e) => setWorkType(e.target.value)}
-                    >
+                    <select id="work-type" className="form-select" value={workType} onChange={e => setWorkType(e.target.value)}>
                       <option value="coroa_zirconia">Coroa Total Monolítica Zircônia</option>
                       <option value="lente_emax">Lente de Contato Cerâmica (IPS e.max)</option>
                       <option value="sobre_implante">Coroa / Pilar sobre Implante</option>
-                      <option value="placa_miorrelaxante">Placa de Bruxismo Prensada CAD/CAM</option>
+                      <option value="placa_miorrelaxante">Placa de Bruxismo CAD/CAM</option>
                     </select>
                   </div>
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="material">Material de Confecção</label>
-                    <select 
-                      id="material" 
-                      className="form-select"
-                      value={material}
-                      onChange={(e) => setMaterial(e.target.value)}
-                    >
+                    <select id="material" className="form-select" value={material} onChange={e => setMaterial(e.target.value)}>
                       <option value="zirconia_mult">Zircônia Multilayer (Translúcida)</option>
                       <option value="zirconia_mult_4d">Zircônia 4D-Pro Ultra High Translucency</option>
                       <option value="emax_cad">Dissilicato de Lítio (IPS e.max original)</option>
-                      <option value="pmma">Resina Acrílica PMMA de Alta Densidade (Provisório)</option>
+                      <option value="pmma">Resina PMMA de Alta Densidade (Provisório)</option>
                     </select>
                   </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                     <div className="form-group">
-                      <label className="form-label" htmlFor="tooth-shade">Cor do Dente (Escala Vita)</label>
-                      <select 
-                        id="tooth-shade" 
-                        className="form-select"
-                        value={toothShade}
-                        onChange={(e) => setToothShade(e.target.value)}
-                      >
+                      <label className="form-label" htmlFor="tooth-shade">Cor (Escala Vita)</label>
+                      <select id="tooth-shade" className="form-select" value={toothShade} onChange={e => setToothShade(e.target.value)}>
                         <option value="A1">A1 (Claro)</option>
                         <option value="A2">A2 (Padrão)</option>
                         <option value="A3">A3 (Médio)</option>
@@ -665,171 +587,96 @@ export default function App() {
                         <option value="BL4">Bleach 4 (Clareado Natural)</option>
                       </select>
                     </div>
-
                     <div className="form-group">
-                      <label className="form-label" htmlFor="urgency">Prioridade do Caso</label>
-                      <select 
-                        id="urgency" 
-                        className="form-select"
-                        value={urgency}
-                        onChange={(e) => setUrgency(e.target.value)}
-                      >
+                      <label className="form-label" htmlFor="urgency">Prioridade</label>
+                      <select id="urgency" className="form-select" value={urgency} onChange={e => setUrgency(e.target.value)}>
                         <option value="padrao">Padrão (5 dias úteis)</option>
-                        <option value="express">Express (48h úteis - + R$ 90)</option>
+                        <option value="express">Express (48h úteis — +R$ 90)</option>
                       </select>
                     </div>
                   </div>
 
-                  <h3 style={{ margin: "24px 0 16px 0", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px", fontSize: "1.2rem" }}>
+                  <h3 style={{ margin: "24px 0 16px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "12px", fontSize: "1.1rem" }}>
                     Dados para Coleta / Faturamento
                   </h3>
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="dentist-name">Nome do Cirurgião-Dentista</label>
-                    <input 
-                      id="dentist-name" 
-                      type="text" 
-                      className="form-input" 
-                      placeholder="Dr. / Dra. Exemplo" 
-                      value={dentistName}
-                      onChange={(e) => setDentistName(e.target.value)}
-                      required
-                    />
+                    <input id="dentist-name" type="text" className="form-input" placeholder="Dr. / Dra. Exemplo" value={dentistName} onChange={e => setDentistName(e.target.value)} required />
                   </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                     <div className="form-group">
                       <label className="form-label" htmlFor="cro">Número do CRO</label>
-                      <input 
-                        id="cro" 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="0000-RO" 
-                        value={dentistCro}
-                        onChange={(e) => setDentistCro(e.target.value)}
-                        required
-                      />
+                      <input id="cro" type="text" className="form-input" placeholder="0000-RO" value={dentistCro} onChange={e => setDentistCro(e.target.value)} required />
                     </div>
-
                     <div className="form-group">
                       <label className="form-label" htmlFor="phone">WhatsApp para Contato</label>
-                      <input 
-                        id="phone" 
-                        type="tel" 
-                        className="form-input" 
-                        placeholder="(69) 99999-0000" 
-                        value={dentistPhone}
-                        onChange={(e) => setDentistPhone(e.target.value)}
-                        required
-                      />
+                      <input id="phone" type="tel" className="form-input" placeholder="(69) 99999-0000" value={dentistPhone} onChange={e => setDentistPhone(e.target.value)} required />
                     </div>
                   </div>
 
-                  <button type="submit" className="btn btn-primary btn-pulse" style={{ width: "100%", marginTop: "12px" }}>
+                  <button type="submit" className="btn btn-gold btn-pulse" style={{ width: "100%", marginTop: "12px" }}>
                     <ToothIcon />
                     Registrar e Solicitar Coleta
                   </button>
                 </form>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "100%", textAlign: "center", padding: "20px 0" }}>
-                  <div style={{ 
-                    width: "70px", 
-                    height: "70px", 
-                    borderRadius: "50%", 
-                    background: "rgba(16, 185, 129, 0.1)", 
-                    border: "2px solid #10b981",
-                    color: "#10b981",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 24px auto"
-                  }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px 0", textAlign: "center" }}>
+                  <div style={{ width: 70, height: 70, borderRadius: "50%", background: "rgba(16,185,129,.10)", border: "2px solid #10b981", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "24px" }}>
                     <CheckIcon />
                   </div>
-                  <h3 style={{ color: "#10b981", fontSize: "1.6rem", marginBottom: "12px" }}>Solicitação Registrada!</h3>
-                  <p style={{ color: "var(--text-secondary)", marginBottom: "24px" }}>
-                    O caso foi enviado para a triagem digital da <strong>@macrovlab</strong>. O código gerado para rastreamento é:
+                  <h3 style={{ color: "#10b981", fontSize: "1.55rem", marginBottom: "12px" }}>Solicitação Registrada!</h3>
+                  <p style={{ color: "var(--muted)", marginBottom: "24px" }}>
+                    O caso foi enviado para a triagem digital da <strong style={{ color: "var(--gold)" }}>@macrovlab</strong>. Código de rastreamento:
                   </p>
-                  <div style={{ 
-                    background: "rgba(255,255,255,0.03)", 
-                    border: "1px solid var(--border-color)", 
-                    padding: "16px", 
-                    borderRadius: "8px", 
-                    fontFamily: "monospace", 
-                    fontSize: "1.2rem", 
-                    fontWeight: "bold",
-                    color: "var(--accent-teal)",
-                    letterSpacing: "0.05em",
-                    marginBottom: "32px"
-                  }}>
+                  <div style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--line-soft)", padding: "16px", borderRadius: "8px", fontFamily: "monospace", fontSize: "1.2rem", fontWeight: "bold", color: "var(--gold-lt)", letterSpacing: ".06em", marginBottom: "28px", width: "100%" }}>
                     {caseCode}
                   </div>
-                  <div className="success-badge" style={{ textAlign: "left", marginBottom: "32px" }}>
+                  <div className="success-badge" style={{ textAlign: "left", width: "100%" }}>
                     <div>
-                      <strong>Próximo passo:</strong> Um de nossos protéticos entrará em contato via WhatsApp no número <strong>{dentistPhone}</strong> em até 15 minutos para obter o link do arquivo STL ou coordenar o motoboy para coleta do molde físico.
+                      <strong>Próximo passo:</strong> Um de nossos protéticos entrará em contato via WhatsApp no número <strong>{dentistPhone}</strong> em até 15 minutos para obter o arquivo STL ou coordenar a coleta.
                     </div>
                   </div>
-                  <button onClick={resetForm} className="btn btn-secondary">
-                    Simular Novo Caso
-                  </button>
+                  <button onClick={resetForm} className="btn btn-ghost" style={{ marginTop: "24px" }}>Simular Novo Caso</button>
                 </div>
               )}
             </div>
 
-            <div className="portal-calc-side" style={{ display: "flex", flexDirection: "column" }}>
-              <h3 style={{ marginBottom: "24px", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
-                Detalhamento & Prazos
-              </h3>
-              
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <h3 style={{ marginBottom: "24px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "12px" }}>Detalhamento & Prazos</h3>
               <div className="calc-summary" style={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <div>
-                  <div className="summary-row">
-                    <span>Laboratório Responsável</span>
-                    <span className="summary-value">Macrov Lab (Porto Velho)</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Restaurador Selecionado</span>
-                    <span className="summary-value" style={{ textTransform: "capitalize" }}>
-                      {workType.replace("_", " ")}
-                    </span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Material de Escolha</span>
-                    <span className="summary-value" style={{ textTransform: "capitalize" }}>
-                      {material.replace("_", " ")}
-                    </span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Matiz de Cor</span>
-                    <span className="summary-value">{toothShade} (Escala Vita 3D)</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Prazo de Produção</span>
-                    <span className="summary-value" style={{ color: urgency === "express" ? "#f59e0b" : "var(--text-primary)", fontWeight: "bold" }}>
-                      {urgency === "express" ? "Express (48 horas úteis)" : "Normal (5 dias úteis)"}
-                    </span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Coleta de Arquivos</span>
-                    <span className="summary-value">Portal de Upload Seguro (SSL)</span>
-                  </div>
+                  {[
+                    ["Laboratório Responsável", "Macrov Lab (Porto Velho)"],
+                    ["Restaurador Selecionado", workType.replace(/_/g, " ")],
+                    ["Material de Escolha",     material.replace(/_/g, " ")],
+                    ["Matiz de Cor",            `${toothShade} (Escala Vita 3D)`],
+                    ["Prazo de Produção",       urgency === "express" ? "Express (48h úteis)" : "Normal (5 dias úteis)"],
+                    ["Coleta de Arquivos",      "Portal de Upload Seguro (SSL)"],
+                  ].map(([label, val], i) => (
+                    <div key={i} className="summary-row">
+                      <span style={{ color: "var(--muted)" }}>{label}</span>
+                      <span className="summary-value" style={{ textTransform: "capitalize" }}>{val}</span>
+                    </div>
+                  ))}
                 </div>
 
-                <div style={{ marginTop: "40px", borderTop: "1px solid var(--border-color)", paddingTop: "24px" }}>
+                <div style={{ marginTop: "36px", borderTop: "1px solid var(--line-soft)", paddingTop: "22px" }}>
                   <div className="summary-row" style={{ borderBottom: "none" }}>
                     <div>
-                      <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", display: "block" }}>Entrega Prevista para o Consultório</span>
-                      <strong style={{ fontSize: "1.25rem", color: "var(--accent-teal)" }}>{deliveryDate}</strong>
+                      <span style={{ fontSize: ".84rem", color: "var(--muted)", display: "block" }}>Entrega Prevista</span>
+                      <strong style={{ fontSize: "1.2rem", color: "var(--gold-lt)" }}>{deliveryDate}</strong>
                     </div>
                   </div>
-                  <div className="summary-row" style={{ borderBottom: "none", background: "rgba(255,255,255,0.02)", padding: "16px", borderRadius: "10px", marginTop: "16px" }}>
+                  <div className="summary-row" style={{ borderBottom: "none", background: "rgba(217,164,65,.04)", padding: "16px", borderRadius: "10px", marginTop: "14px" }}>
                     <div>
-                      <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", display: "block" }}>Preço Médio Estimado da Unidade</span>
-                      <span className="summary-value highlight" style={{ fontSize: "1.6rem", color: "var(--accent-teal)" }}>
+                      <span style={{ fontSize: ".84rem", color: "var(--muted)", display: "block" }}>Preço Médio Estimado / Unidade</span>
+                      <span className="summary-value highlight" style={{ fontSize: "1.6rem" }}>
                         R$ {calculatePrice().toFixed(2)}
                       </span>
                     </div>
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", maxWidth: "150px", textAlign: "right" }}>
+                    <span style={{ fontSize: ".74rem", color: "var(--muted)", maxWidth: "140px", textAlign: "right" }}>
                       *Faturamento mensal em fatura única B2B para clínicas cadastradas.
                     </span>
                   </div>
@@ -840,269 +687,107 @@ export default function App() {
         </div>
       </section>
 
-      {/* Instagram Feed Section */}
-      <section id="instagram" className="section" style={{ borderTop: "1px solid var(--border-color)" }}>
+      {/* ── GALERIA / INSTAGRAM ── */}
+      <section className="section" id="galeria" style={{ background: "var(--panel)", borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">Galeria @macrovlab</span>
-            <h2>Bastidores & Casos Clínicos</h2>
-            <p className="section-desc">
-              Confira as imagens do nosso dia a dia clínico e laboratorial publicadas em nosso perfil no Instagram. Acompanhe a evolução das reabilitações 100% digitais.
-            </p>
+            <span className="eyebrow center reveal">@macrovlab</span>
+            <h2 className="reveal d1">Nossa evolução, <b className="gold-text">post a post.</b></h2>
+            <p className="section-desc reveal d2">Acompanhe os bastidores, projetos e a nova era do laboratório no Instagram.</p>
           </div>
 
-          {/* Instagram Profile Header Mockup */}
-          <div className="instagram-profile-card glass-panel">
-            <div className="instagram-avatar-wrapper">
-              <div className="instagram-avatar-ring">
-                <div className="instagram-avatar">
-                  <img src="/dental_veneers.png" alt="Macrov Lab Logo Avatar" />
-                </div>
+          <div className="gallery-grid">
+            {[
+              { src: "/post-01-digital.png", label: "Tudo começou no digital", delay: "" },
+              { src: "/post-02-cad.png",     label: "Projetos CAD",            delay: "d1" },
+              { src: "/post-03-fluxos.png",  label: "Fluxos digitais",         delay: "d2" },
+              { src: "/post-04-tecnologia.png", label: "Tecnologia aplicada",  delay: "d3" },
+            ].map((g, i) => (
+              <div key={i} className={`g-card reveal ${g.delay}`} onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
+                <img src={g.src} alt={g.label} />
+                <span className="g-card-label">◎ Ver post</span>
               </div>
-            </div>
-            <div className="instagram-profile-info">
-              <div className="instagram-profile-top">
-                <a href="https://instagram.com/macrovlab" target="_blank" rel="noreferrer" className="instagram-username">
-                  @macrovlab
-                  <span className="instagram-verify-badge" title="Conta Oficial Verificada">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-                    </svg>
-                  </span>
-                </a>
-                <a href="https://instagram.com/macrovlab" target="_blank" rel="noreferrer" className="btn btn-primary" style={{ padding: "6px 16px", fontSize: "0.85rem", borderRadius: "8px" }}>
-                  Seguir
-                </a>
-              </div>
-              <div className="instagram-stats">
-                <span className="instagram-stat-item"><strong>6</strong> posts</span>
-                <span className="instagram-stat-item"><strong>2.4k</strong> seguidores</span>
-                <span className="instagram-stat-item"><strong>182</strong> seguindo</span>
-              </div>
-              <div className="instagram-bio">
-                <strong>Macrov Lab | Prótese Dentária Digital</strong><br />
-                🔬 Reabilitação Oral de Alta Performance<br />
-                💻 Fluxo 100% Digital CAD/CAM (Exocad & 3Shape)<br />
-                📍 Porto Velho, Rondônia
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Instagram 3x2 Grid */}
-          <div className="instagram-grid">
-            {/* Post 1: Veneers */}
-            <div className="instagram-post" onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
-              <img src="/dental_veneers.png" alt="Lentes de Contato Odontológicas" className="instagram-post-img" />
-              <div className="instagram-post-overlay">
-                <div className="instagram-post-stats">
-                  <span className="instagram-post-stat">❤️ 142</span>
-                  <span className="instagram-post-stat">💬 12</span>
-                </div>
-                <p className="instagram-post-caption">
-                  Lentes de contato ultrafinas em dissilicato de lítio (IPS e.max). Perfeição em translucidez e fidelidade marginal. ✨ #lentesdecontatodental #esteticadental #macrovlab
-                </p>
-              </div>
-            </div>
-
-            {/* Post 2: Zirconia Crown */}
-            <div className="instagram-post" onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
-              <img src="/dental_zirconia_crown.png" alt="Coroa Total em Zircônia Multicamadas" className="instagram-post-img" />
-              <div className="instagram-post-overlay">
-                <div className="instagram-post-stats">
-                  <span className="instagram-post-stat">❤️ 98</span>
-                  <span className="instagram-post-stat">💬 8</span>
-                </div>
-                <p className="instagram-post-caption">
-                  Coroa monolítica de zircônia multicamadas 4D-Pro. Unindo alta resistência (1200 MPa) e estética natural. 💎 #zirconiadental #protesedentaria #cadcam
-                </p>
-              </div>
-            </div>
-
-            {/* Post 3: CAD Design */}
-            <div className="instagram-post" onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
-              <img src="/dental_cad_design.png" alt="Planejamento Digital no Exocad" className="instagram-post-img" />
-              <div className="instagram-post-overlay">
-                <div className="instagram-post-stats">
-                  <span className="instagram-post-stat">❤️ 215</span>
-                  <span className="instagram-post-stat">💬 24</span>
-                </div>
-                <p className="instagram-post-caption">
-                  Desenho virtual no Exocad. Mapeamento micrométrico dos contatos oclusais e margens para zero ajuste clínico. 💻 #exocad #fluxodigital #odontologia
-                </p>
-              </div>
-            </div>
-
-            {/* Post 4: Handcraft Paint */}
-            <div className="instagram-post" onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
-              <img src="/dental_handcraft.png" alt="Maquiagem e Glaze Cerâmico" className="instagram-post-img" />
-              <div className="instagram-post-overlay">
-                <div className="instagram-post-stats">
-                  <span className="instagram-post-stat">❤️ 167</span>
-                  <span className="instagram-post-stat">💬 19</span>
-                </div>
-                <p className="instagram-post-caption">
-                  A arte que complementa a tecnologia. Caracterização manual minuciosa para replicar a opalescência do esmalte natural. 🎨🖌️ #proteseartesanal #estetica #vita3d
-                </p>
-              </div>
-            </div>
-
-            {/* Post 5: Finished Smile */}
-            <div className="instagram-post" onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
-              <img src="/dental_finished_smile.png" alt="Resultado Clínico Cimentado" className="instagram-post-img" />
-              <div className="instagram-post-overlay">
-                <div className="instagram-post-stats">
-                  <span className="instagram-post-stat">❤️ 312</span>
-                  <span className="instagram-post-stat">💬 37</span>
-                </div>
-                <p className="instagram-post-caption">
-                  Mais um sorriso transformado por nossos parceiros com reabilitações Macrov. A beleza do natural na odontologia digital. 😁🙌 #sorrisoperfeito #reabilitacaooral
-                </p>
-              </div>
-            </div>
-
-            {/* Post 6: Lab Setup Milling */}
-            <div className="instagram-post" onClick={() => window.open("https://instagram.com/macrovlab", "_blank")}>
-              <img src="/dental_lab_setup.png" alt="Fresadora CNC 5 Eixos" className="instagram-post-img" />
-              <div className="instagram-post-overlay">
-                <div className="instagram-post-stats">
-                  <span className="instagram-post-stat">❤️ 119</span>
-                  <span className="instagram-post-stat">💬 5</span>
-                </div>
-                <p className="instagram-post-caption">
-                  Central de fresagem a todo vapor. Tecnologia alemã de 5 eixos garantindo a máxima fidelidade na usinagem dos blocos. ⚙️🤖 #cadcamlab #fresadora #tecnologia
-                </p>
-              </div>
-            </div>
+          <div style={{ textAlign: "center", marginTop: "44px" }} className="reveal">
+            <a href="https://www.instagram.com/macrovlab/" target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+              Seguir @macrovlab <ArrowRight />
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Dentist Testimonials */}
-      <section id="depoimentos" className="section" style={{ background: "rgba(11, 15, 25, 0.4)", borderTop: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
+      {/* ── DEPOIMENTOS ── */}
+      <section className="section" id="depoimentos" style={{ borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">Casos Clínicos de Sucesso</span>
-            <h2>O que dizem os cirurgiões-dentistas</h2>
-            <p className="section-desc">Depoimentos reais de profissionais que transformaram sua rotina e a satisfação de seus pacientes com a @macrovlab.</p>
+            <span className="eyebrow center reveal">Casos Clínicos de Sucesso</span>
+            <h2 className="reveal d1">O que dizem os <b className="gold-text">cirurgiões-dentistas</b></h2>
+            <p className="section-desc reveal d2">Depoimentos reais de profissionais que transformaram sua rotina com a @macrovlab.</p>
           </div>
 
           <div className="testimonials-grid">
-            <div className="glass-panel test-card">
-              <p className="test-text">
-                "Desde que migramos para o fluxo 100% digital com a Macrov Lab, o tempo de cadeira dos meus pacientes reduziu muito. As lentes de contato em e.max encaixam perfeitamente na primeira prova, com zero necessidade de ajustes. A qualidade do design de oclusão deles no software é impecável."
-              </p>
-              <div className="test-profile">
-                <div className="test-avatar">DR</div>
-                <div>
-                  <h4 className="test-name">Dr. Daniel Rodrigues</h4>
-                  <p className="test-clinic">Reabilitação Oral & Estética - CRO 2942-RO</p>
+            {[
+              { initials:"DR", name:"Dr. Daniel Rodrigues", clinic:"Reabilitação Oral & Estética — CRO 2942-RO", text:"Desde que migramos para o fluxo 100% digital com a Macrov Lab, o tempo de cadeira dos meus pacientes reduziu muito. As lentes de contato em e.max encaixam perfeitamente na primeira prova, com zero necessidade de ajustes." },
+              { initials:"AM", name:"Dra. Aline Medeiros", clinic:"Implantodontista — CRO 4108-RO", text:"O suporte deles é o grande diferencial. Sempre que tenho um caso complexo de implante múltiplo, o designer me chama em videoconferência no Exocad para refinarmos juntos antes da fresagem. Isso me traz uma segurança clínica absurda." },
+              { initials:"RC", name:"Dr. Ricardo Costa", clinic:"Clínica Sorriso Moderno — CRO 3319-RO", text:"Enviamos o STL pela manhã e no final da tarde a coroa de Zircônia Multilayer pintada e glazeada estava no consultório. Impressionante a agilidade no serviço Express. Trabalho impecável." },
+            ].map((t, i) => (
+              <div key={i} className={`glass-panel test-card reveal ${i > 0 ? `d${i}` : ""}`}>
+                <p className="test-text">{t.text}</p>
+                <div className="test-profile">
+                  <div className="test-avatar">{t.initials}</div>
+                  <div>
+                    <h4 className="test-name">{t.name}</h4>
+                    <p className="test-clinic">{t.clinic}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="glass-panel test-card" style={{ borderColor: "rgba(0, 242, 254, 0.2)" }}>
-              <p className="test-text">
-                "O suporte deles é o grande diferencial. Sempre que tenho um caso complexo de implante múltiplo, o designer me chama em videoconferência no Exocad para refinarmos juntos as diretrizes da coroa antes da fresagem. Isso me traz uma segurança clínica absurda."
-              </p>
-              <div className="test-profile">
-                <div className="test-avatar" style={{ color: "var(--accent-purple)" }}>AM</div>
-                <div>
-                  <h4 className="test-name">Dra. Aline Medeiros</h4>
-                  <p className="test-clinic">Implantodontista - CRO 4108-RO</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="glass-panel test-card">
-              <p className="test-text">
-                "Impressionante a agilidade no serviço Express. Tivemos uma emergência de fratura de coroa anterior de um paciente que viajaria no dia seguinte. Enviamos o STL pela manhã e no final da tarde a coroa de Zircônia Multilayer pintada e glazeada estava no meu consultório. Trabalho impecável."
-              </p>
-              <div className="test-profile">
-                <div className="test-avatar">RC</div>
-                <div>
-                  <h4 className="test-name">Dr. Ricardo Costa</h4>
-                  <p className="test-clinic">Clínica Sorriso Moderno - CRO 3319-RO</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ & Quick Contact Section */}
-      <section id="faq" className="section">
+      {/* ── FAQ ── */}
+      <section className="section" id="faq" style={{ background: "var(--panel)", borderTop: "1px solid var(--line-soft)" }}>
         <div className="container">
           <div className="section-header">
-            <span className="section-tag">Perguntas Frequentes</span>
-            <h2>Esclareça Suas Dúvidas</h2>
-            <p className="section-desc">Informações rápidas sobre envio de arquivos, prazos e faturamento para novos consultórios parceiros.</p>
+            <span className="eyebrow center reveal">Perguntas Frequentes</span>
+            <h2 className="reveal d1">Esclareça suas <b className="gold-text">dúvidas</b></h2>
+            <p className="section-desc reveal d2">Informações rápidas sobre envio de arquivos, prazos e faturamento para novos consultórios parceiros.</p>
           </div>
 
           <div className="faq-grid">
-            <div className="faq-questions-side">
-              <FAQAccordionItem 
-                question="Quais modelos de scanners intraorais são compatíveis?"
-                answer="Somos 100% integrados com sistemas abertos. Você pode nos enviar arquivos no formato STL, PLY ou OBJ gerados por qualquer scanner intraoral do mercado, incluindo Medit, iTero, Trios 3Shape, Carestream, Dentsply Sirona (Primescan) e Owandy."
-              />
-              <FAQAccordionItem 
-                question="Como é feita a coleta física se eu não possuir scanner?"
-                answer="Se você ainda utiliza moldagem convencional de silicone, nós fazemos a coleta física do molde em seu consultório (região de Porto Velho). Escaneamos o modelo de gesso com scanner de bancada industrial em nosso laboratório para inseri-lo no fluxo digital sem custo adicional."
-              />
-              <FAQAccordionItem 
-                question="Qual é o prazo de garantia oferecido para as próteses?"
-                answer="Oferecemos uma garantia oficial de 5 anos para todas as nossas reabilitações estruturais confeccionadas em Zircônia pura (monolítica e maquiada) e de 2 anos para as restaurações em dissilicato de lítio (IPS e.max), cobrindo quebras e falhas do material sob uso fisiológico."
-              />
-              <FAQAccordionItem 
-                question="Como funciona o faturamento e as formas de pagamento?"
-                answer="Para consultórios parceiros e dentistas cadastrados, o faturamento é mensal via boleto bancário direto, enviado no início do mês subsequente com o descritivo de todos os casos concluídos. Também aceitamos cartões de crédito e PIX com desconto à vista."
-              />
+            <div className="faq-questions-side reveal">
+              <FAQAccordionItem question="Quais scanners intraorais são compatíveis?" answer="Somos 100% integrados com sistemas abertos. Você pode nos enviar arquivos STL, PLY ou OBJ gerados por qualquer scanner — Medit, iTero, Trios 3Shape, Carestream, Dentsply Sirona (Primescan) e Owandy." />
+              <FAQAccordionItem question="Como é feita a coleta física sem scanner?" answer="Se você ainda utiliza moldagem convencional de silicone, fazemos a coleta física do molde em seu consultório (região de Porto Velho). Escaneamos o modelo de gesso com scanner de bancada industrial em nosso laboratório, sem custo adicional." />
+              <FAQAccordionItem question="Qual é o prazo de garantia das próteses?" answer="Oferecemos 5 anos de garantia para reabilitações em Zircônia pura e 2 anos para restaurações em dissilicato de lítio (IPS e.max), cobrindo quebras e falhas do material sob uso fisiológico normal." />
+              <FAQAccordionItem question="Como funciona o faturamento e as formas de pagamento?" answer="Para consultórios parceiros cadastrados, o faturamento é mensal via boleto bancário com descritivo de todos os casos do mês. Também aceitamos cartões de crédito e PIX com desconto à vista." />
             </div>
 
-            <div className="glass-panel contact-card">
-              <h3 style={{ borderBottom: "1px solid var(--border-color)", paddingBottom: "12px", color: "var(--accent-teal)" }}>
+            <div className="glass-panel contact-card reveal d1">
+              <h3 style={{ borderBottom: "1px solid var(--line-soft)", paddingBottom: "12px", color: "var(--gold-lt)", marginBottom: "20px" }}>
                 Fale Diretamente Conosco
               </h3>
-              <p style={{ fontSize: "0.95rem" }}>
-                Tem um caso atípico de alta complexidade ou gostaria de agendar uma visita para conhecer nossa central CAD/CAM? Fale direto com a nossa gerência de suporte clínico.
+              <p style={{ fontSize: ".94rem" }}>
+                Tem um caso atípico ou gostaria de agendar uma visita para conhecer nossa central CAD/CAM? Fale com nossa gerência de suporte clínico.
               </p>
 
-              <div className="contact-info-item">
-                <div className="contact-icon">
-                  <PhoneIcon />
+              {[
+                { icon: <PhoneIcon />, label: "WhatsApp Suporte Técnico", content: <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" style={{ color: "var(--ink)", fontWeight: "bold" }}>(69) 99999-0000</a> },
+                { icon: <ToothIcon />, label: "E-mail de Cadastro", content: <a href="mailto:macrovlab@gmail.com" style={{ color: "var(--ink)", fontWeight: "bold" }}>macrovlab@gmail.com</a>, iconColor: "var(--accent-purple)" },
+                { icon: <CalendarIcon />, label: "Localização do Laboratório", content: <span style={{ color: "var(--ink)", fontWeight: "bold" }}>Porto Velho, Rondônia — RO</span> },
+              ].map((item, i) => (
+                <div key={i} className="contact-info-item">
+                  <div className="contact-icon" style={item.iconColor ? { color: item.iconColor } : undefined}>{item.icon}</div>
+                  <div>
+                    <span style={{ fontSize: ".78rem", color: "var(--muted)", display: "block" }}>{item.label}</span>
+                    {item.content}
+                  </div>
                 </div>
-                <div>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block" }}>WhatsApp Suporte Técnico</span>
-                  <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" style={{ color: "var(--text-primary)", fontWeight: "bold", textDecoration: "none" }}>
-                    (69) 99999-0000
-                  </a>
-                </div>
-              </div>
+              ))}
 
-              <div className="contact-info-item">
-                <div className="contact-icon" style={{ color: "var(--accent-purple)" }}>
-                  <ToothIcon />
-                </div>
-                <div>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block" }}>E-mail de Cadastro</span>
-                  <a href="mailto:macrovlab@gmail.com" style={{ color: "var(--text-primary)", fontWeight: "bold", textDecoration: "none" }}>
-                    macrovlab@gmail.com
-                  </a>
-                </div>
-              </div>
-
-              <div className="contact-info-item">
-                <div className="contact-icon">
-                  <CalendarIcon />
-                </div>
-                <div>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block" }}>Localização do Laboratório</span>
-                  <span style={{ color: "var(--text-primary)", fontWeight: "bold" }}>
-                    Porto Velho, Rondônia - RO
-                  </span>
-                </div>
-              </div>
-
-              <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="btn btn-primary btn-pulse" style={{ marginTop: "12px" }}>
+              <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="btn btn-gold btn-pulse" style={{ marginTop: "24px", width: "100%" }}>
                 <PhoneIcon />
                 Falar no WhatsApp
               </a>
@@ -1111,67 +796,86 @@ export default function App() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ── CTA ── */}
+      <section className="cta-section" id="contato">
+        <div className="container">
+          <div className="cta-box reveal">
+            <div>
+              <span className="eyebrow">Vamos evoluir juntos</span>
+              <h2 style={{ marginTop: "18px" }}>Pronto para entregar <b className="gold-text">sorrisos perfeitos?</b></h2>
+              <p style={{ marginTop: "18px", fontSize: "18px", maxWidth: "440px" }}>
+                Envie seu caso ou fale com nossa equipe. Atendemos clínicas e dentistas que buscam o padrão premium em prótese digital.
+              </p>
+            </div>
+            <div className="cta-acts">
+              <a href="https://wa.me/5569999990000" target="_blank" rel="noopener noreferrer" className="btn btn-gold">Falar no WhatsApp</a>
+              <a href="mailto:macrovlab@gmail.com" className="btn btn-ghost">Enviar e-mail</a>
+              <span className="cta-note">Resposta em até 24h úteis</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
       <footer className="footer">
         <div className="container">
           <div className="footer-grid">
             <div>
-              <a href="#hero" className="logo-brand" style={{ marginBottom: "20px" }}>
-                <ToothIcon />
-                <span>MACROV<span className="gradient-text-teal">LAB</span></span>
-                <span className="logo-dot"></span>
+              <a href="#top" className="logo-brand" style={{ marginBottom: "18px" }}>
+                <img src="/emblem.png" alt="MACROVLAB" className="logo-emblem" style={{ width: "38px" }} />
+                <span className="logo-wordmark">MACROV<span className="lab">LAB</span></span>
               </a>
-              <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "24px" }}>
-                Laboratório odontológico especializado em reabilitações estéticas e estruturais de alta precisão via fluxo 100% digital CAD/CAM.
+              <p style={{ fontSize: "14.5px", color: "var(--muted)", maxWidth: "300px", marginTop: "16px" }}>
+                Prótese dentária e CADDesign premium. Da tradição à inovação — a evolução é nossa essência.
               </p>
             </div>
 
             <div>
-              <h4 className="footer-title">Navegação</h4>
+              <h4 className="footer-title">Laboratório</h4>
               <ul className="footer-links">
-                <li><a href="#servicos" className="footer-link">Serviços</a></li>
-                <li><a href="#estetica" className="footer-link">Estética 3D</a></li>
-                <li><a href="#workflow" className="footer-link">Fluxo CAD/CAM</a></li>
-                <li><a href="#simulador" className="footer-link">Simulador de Casos</a></li>
+                <li><a href="#manifesto" className="footer-link">Manifesto</a></li>
+                <li><a href="#jornada"   className="footer-link">A Jornada</a></li>
+                <li><a href="#solucoes"  className="footer-link">Soluções</a></li>
+                <li><a href="#tecnologia" className="footer-link">Tecnologia</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="footer-title">Materiais</h4>
+              <h4 className="footer-title">Soluções</h4>
               <ul className="footer-links">
-                <li><a href="#servicos" className="footer-link">Zircônia Multicamadas</a></li>
-                <li><a href="#servicos" className="footer-link">Dissilicato de Lítio (e.max)</a></li>
-                <li><a href="#servicos" className="footer-link">Resina de Alta Definição PMMA</a></li>
-                <li><a href="#servicos" className="footer-link">Pilares Personalizados Ti/Zr</a></li>
+                <li><a href="#solucoes" className="footer-link">Prótese sobre implante</a></li>
+                <li><a href="#solucoes" className="footer-link">Coroas & facetas</a></li>
+                <li><a href="#solucoes" className="footer-link">Planejamento digital</a></li>
+                <li><a href="#solucoes" className="footer-link">Fluxo digital</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="footer-title">Contato & Suporte</h4>
+              <h4 className="footer-title">Contato</h4>
               <ul className="footer-links">
-                <li><span className="footer-link">(69) 99999-0000</span></li>
-                <li><span className="footer-link">macrovlab@gmail.com</span></li>
-                <li><span className="footer-link">Porto Velho - Rondônia</span></li>
-                <li><span className="footer-link">Atendimento: Seg a Sex - 8h às 18h</span></li>
+                <li><a href="https://wa.me/5569999990000" target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a></li>
+                <li><a href="mailto:macrovlab@gmail.com" className="footer-link">macrovlab@gmail.com</a></li>
+                <li><a href="https://instagram.com/macrovlab" target="_blank" rel="noopener noreferrer" className="footer-link">@macrovlab</a></li>
               </ul>
             </div>
           </div>
 
           <div className="footer-bottom">
             <span className="footer-copy">
-              &copy; {new Date().getFullYear()} Macrov Lab. Todos os direitos reservados. Macrov S.p Serviços em Prótese Dentária Ltda.
+              © {new Date().getFullYear()} MACROVLAB · Prótese Dentária · CADDesign Premium
             </span>
             <div className="social-links">
               <a href="https://instagram.com/macrovlab" target="_blank" rel="noreferrer" className="social-link" aria-label="Instagram">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <rect x="3" y="3" width="18" height="18" rx="5"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
                 </svg>
               </a>
               <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="social-link" aria-label="WhatsApp">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z"/>
+                  <path d="M8.5 8.5c-.3 1.5 2.3 5.2 4 6 .8.4 1.8.6 2.5-.2.4-.5.3-1-.2-1.4-.6-.4-1.4-.9-2-.3-.4.4-1.6-.4-2.3-1.6-.5-.9.1-1.3.4-1.8.3-.5.1-1.1-.3-1.5-.4-.4-1.2-.5-1.8 0Z" fill="currentColor" stroke="none"/>
                 </svg>
               </a>
             </div>
