@@ -1,7 +1,7 @@
 // src/react-app/App.tsx
 // MACROVLAB — Landing cinematográfica · Identidade Azul + Dourado
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 
 /* ─── Particle Canvas ─── */
 interface PCOpts { density?: number; maxLink?: number; speed?: number; drift?: number; sizeMul?: number; }
@@ -200,10 +200,21 @@ export default function App() {
   const [dentistPhone, setDentistPhone] = useState("");
   const [caseSubmitted,setCaseSubmitted]= useState(false);
   const [caseCode,     setCaseCode]     = useState("");
-  const [deliveryDate, setDeliveryDate] = useState("");
 
-  const containerRef  = useRef<HTMLDivElement>(null);
-  const heroMouseRef  = useRef({ x: -9999, y: -9999 });
+  const containerRef   = useRef<HTMLDivElement>(null);
+  const globalMouseRef = useRef({ x: -9999, y: -9999 });
+
+  // rastreamento de mouse em escopo de documento para o canvas global de partículas
+  useEffect(() => {
+    const onMove  = (e: MouseEvent) => { globalMouseRef.current = { x: e.clientX, y: e.clientY }; };
+    const onLeave = () => { globalMouseRef.current = { x: -9999, y: -9999 }; };
+    document.addEventListener("mousemove", onMove);
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
 
   /* scroll lock for navbar */
   useEffect(() => {
@@ -246,15 +257,13 @@ export default function App() {
     return p;
   };
 
-  /* delivery date */
-  useEffect(() => {
-    const today = new Date();
+  const deliveryDate = useMemo(() => {
     const days = urgency === "express" ? 2 : 5;
     let count = 0;
-    const d = new Date(today);
+    const d = new Date();
     while (count < days) { d.setDate(d.getDate() + 1); const wd = d.getDay(); if (wd !== 0 && wd !== 6) count++; }
-    setDeliveryDate(d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" }));
-  }, [urgency, workType]);
+    return d.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+  }, [urgency]);
 
   const handleRegisterCase = (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,6 +290,13 @@ export default function App() {
       <div className="bg-glow-1" />
       <div className="bg-glow-2" />
 
+      {/* Global interactive particle canvas — covers full page, follows mouse everywhere */}
+      <ParticleCanvas
+        className="particle-canvas-global"
+        opts={{ density: 0.00009, maxLink: 155, speed: 0.18, sizeMul: 1.0 }}
+        mouseRef={globalMouseRef}
+      />
+
       {/* ── NAVBAR ── */}
       <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
         <div className="container">
@@ -304,16 +320,7 @@ export default function App() {
       </nav>
 
       {/* ── HERO ── */}
-      <header
-        className="hero" id="top"
-        onMouseMove={e => { const b = e.currentTarget.getBoundingClientRect(); heroMouseRef.current = { x: e.clientX - b.left, y: e.clientY - b.top }; }}
-        onMouseLeave={() => { heroMouseRef.current = { x: -9999, y: -9999 }; }}
-      >
-        <ParticleCanvas
-          className="particle-canvas-hero"
-          opts={{ density: 0.00011, maxLink: 155, speed: 0.22, sizeMul: 1.1 }}
-          mouseRef={heroMouseRef}
-        />
+      <header className="hero" id="top">
 
         <div className="container">
           <div className="hero-grid">
@@ -401,7 +408,13 @@ export default function App() {
             <div className="rebrand-side">
               <span className="rebrand-chip">Agora</span>
               <div className="rebrand-new"><img src="/emblem.png" alt="MACROVLAB" /></div>
-              <span className="rebrand-chip gold-text" style={{ fontWeight: 700 }}>MACROVLAB</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px" }}>
+                <span style={{ fontFamily: "var(--font-title)", fontWeight: 700, fontSize: "22px", letterSpacing: ".05em", lineHeight: 1 }}>
+                  <span style={{ background: "var(--gold-grad)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>MACROV</span>
+                  <span style={{ background: "linear-gradient(90deg, #7fa9e8, #a9c4f2)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>LAB</span>
+                </span>
+                <span style={{ fontSize: "9px", letterSpacing: ".22em", textTransform: "uppercase", color: "var(--faint)" }}>Prótese Dentária · CADDesign Premium</span>
+              </div>
             </div>
           </div>
         </div>
@@ -411,9 +424,8 @@ export default function App() {
       <section
         className="section"
         id="manifesto"
-        style={{ background: "linear-gradient(180deg, var(--bg-2), var(--panel))", textAlign: "center", overflow: "hidden" }}
+        style={{ background: "linear-gradient(180deg, var(--bg-2), var(--panel))", textAlign: "center" }}
       >
-        <ParticleCanvas opts={{ density: 0.00006, maxLink: 140, speed: 0.14, drift: 0.05, sizeMul: 0.9 }} style={{ opacity: .55 }} />
         <div className="container" style={{ position: "relative", zIndex: 2 }}>
           <span className="eyebrow center reveal">A evolução é nossa essência</span>
           <h2 className="reveal d1" style={{ fontWeight: 300, fontSize: "clamp(34px,5.2vw,72px)", marginTop: "28px", maxWidth: "1000px", margin: "28px auto 0" }}>
@@ -854,7 +866,6 @@ export default function App() {
       <section className="cta-section" id="contato">
         <div className="container">
           <div className="cta-box reveal">
-            <ParticleCanvas opts={{ density: 0.00006, maxLink: 120, speed: 0.12, sizeMul: 0.85 }} />
             <div>
               <span className="eyebrow">Vamos evoluir juntos</span>
               <h2 style={{ marginTop: "18px" }}>Pronto para entregar <b className="gold-text">sorrisos perfeitos?</b></h2>
@@ -877,7 +888,7 @@ export default function App() {
           <div className="footer-grid">
             <div>
               <a href="#top" className="logo-brand" style={{ marginBottom: "18px" }}>
-                <img src="/emblem.png" alt="MACROVLAB" className="logo-emblem" style={{ width: "38px" }} />
+                <img src="/emblem.png" alt="MACROVLAB" className="logo-emblem" />
                 <span className="logo-wordmark">MACROV<span className="lab">LAB</span></span>
               </a>
               <p style={{ fontSize: "14.5px", color: "var(--muted)", maxWidth: "300px", marginTop: "16px" }}>
@@ -926,6 +937,19 @@ export default function App() {
               <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="social-link" aria-label="WhatsApp">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z"/><path d="M8.5 8.5c-.3 1.5 2.3 5.2 4 6 .8.4 1.8.6 2.5-.2.4-.5.3-1-.2-1.4-.6-.4-1.4-.9-2-.3-.4.4-1.6-.4-2.3-1.6-.5-.9.1-1.3.4-1.8.3-.5.1-1.1-.3-1.5-.4-.4-1.2-.5-1.8 0Z" fill="currentColor" stroke="none"/></svg>
               </a>
+            </div>
+          </div>
+
+          <div className="footer-dev">
+            <span>Desenvolvido por</span>
+            <div className="footer-dev-links">
+              <a href="https://www.instagram.com/sandro_torres_saylou/" target="_blank" rel="noopener noreferrer" className="footer-dev-link" aria-label="Instagram de Sandro Torres">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+              </a>
+              <a href="https://wa.me/5592984474314" target="_blank" rel="noopener noreferrer" className="footer-dev-link" aria-label="WhatsApp de Sandro Torres">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z"/><path d="M8.5 8.5c-.3 1.5 2.3 5.2 4 6 .8.4 1.8.6 2.5-.2.4-.5.3-1-.2-1.4-.6-.4-1.4-.9-2-.3-.4.4-1.6-.4-2.3-1.6-.5-.9.1-1.3.4-1.8.3-.5.1-1.1-.3-1.5-.4-.4-1.2-.5-1.8 0Z" fill="currentColor" stroke="none"/></svg>
+              </a>
+              <span className="footer-dev-name">Sandro Torres · ST Developer</span>
             </div>
           </div>
         </div>

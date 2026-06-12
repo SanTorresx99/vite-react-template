@@ -1,6 +1,8 @@
 import { Hono } from "hono";
+
 const app = new Hono<{ Bindings: Env }>();
 
-app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
+// Adicione rotas de API aqui quando necessário
+// ex: app.post("/api/leads", async (c) => { ... })
 
 export default app;
