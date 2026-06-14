@@ -3,6 +3,9 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 
+const WHATSAPP_NUMBER = "559292033445"; // número da protética (sem + e sem espaços)
+const WHATSAPP_DISPLAY = "(92) 9203-3445";
+
 /* ─── Particle Canvas ─── */
 interface PCOpts { density?: number; maxLink?: number; speed?: number; drift?: number; sizeMul?: number; }
 
@@ -200,6 +203,7 @@ export default function App() {
   const [dentistPhone, setDentistPhone] = useState("");
   const [caseSubmitted,setCaseSubmitted]= useState(false);
   const [caseCode,     setCaseCode]     = useState("");
+  const [whatsappUrl,  setWhatsappUrl]  = useState("");
 
   const containerRef   = useRef<HTMLDivElement>(null);
   const globalMouseRef = useRef({ x: -9999, y: -9999 });
@@ -247,14 +251,17 @@ export default function App() {
   const onMouseMove = (e: React.MouseEvent) => handleSliderMove(e.clientX);
   const onTouchMove = (e: React.TouchEvent) => { if (e.touches[0]) handleSliderMove(e.touches[0].clientX); };
 
-  /* price calculator */
-  const calculatePrice = () => {
-    const base: Record<string, number> = { coroa_zirconia: 390, lente_emax: 480, sobre_implante: 710, placa_miorrelaxante: 190 };
-    let p = base[workType] ?? 390;
-    if (material === "emax_cad") p += 50;
-    if (material === "zirconia_mult_4d") p += 40;
-    if (urgency === "express") p += 90;
-    return p;
+  const workTypeLabels: Record<string, string> = {
+    coroa_zirconia:       "Coroa Total Monolítica Zircônia",
+    lente_emax:           "Lente de Contato Cerâmica (IPS e.max)",
+    sobre_implante:       "Coroa / Pilar sobre Implante",
+    placa_miorrelaxante:  "Placa de Bruxismo CAD/CAM",
+  };
+  const materialLabels: Record<string, string> = {
+    zirconia_mult:     "Zircônia Multilayer (Translúcida)",
+    zirconia_mult_4d:  "Zircônia 4D-Pro Ultra High Translucency",
+    emax_cad:          "Dissilicato de Lítio (IPS e.max original)",
+    pmma:              "Resina PMMA de Alta Densidade (Provisório)",
   };
 
   const deliveryDate = useMemo(() => {
@@ -269,10 +276,31 @@ export default function App() {
     e.preventDefault();
     if (!dentistName || !dentistCro || !dentistPhone) { alert("Por favor, preencha todos os campos do dentista."); return; }
     const code = `MCV-2026-${Math.floor(1000 + Math.random() * 9000)}-RO`;
-    setCaseCode(code); setCaseSubmitted(true);
+    const prazo = urgency === "express" ? "Express (48h úteis)" : "Padrão (5 dias úteis)";
+    const msg = [
+      `🦷 *Solicitação de Orçamento — Macrov Lab*`,
+      ``,
+      `Olá! Sou *${dentistName}* — CRO ${dentistCro}.`,
+      `Solicito orçamento para o seguinte serviço:`,
+      ``,
+      `📋 *Detalhes do Serviço*`,
+      `▸ *Ref.:* ${code}`,
+      `▸ *Restauração:* ${workTypeLabels[workType]}`,
+      `▸ *Material:* ${materialLabels[material]}`,
+      `▸ *Cor (Vita):* ${toothShade}`,
+      `▸ *Prazo:* ${prazo}`,
+      `▸ *Entrega prevista:* ${deliveryDate}`,
+      ``,
+      `📞 *Contato:* ${dentistPhone}`,
+      ``,
+      `Aguardo confirmação e instruções para envio do arquivo STL. Obrigado(a)!`,
+    ].join("\n");
+    setCaseCode(code);
+    setWhatsappUrl(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+    setCaseSubmitted(true);
   };
 
-  const resetForm = () => { setCaseSubmitted(false); setDentistName(""); setDentistCro(""); setDentistPhone(""); };
+  const resetForm = () => { setCaseSubmitted(false); setDentistName(""); setDentistCro(""); setDentistPhone(""); setWhatsappUrl(""); };
 
   /* workflow steps */
   const workflowSteps = [
@@ -705,10 +733,14 @@ export default function App() {
                   </div>
                   <div className="success-badge" style={{ textAlign: "left", width: "100%" }}>
                     <div>
-                      <strong>Próximo passo:</strong> Um de nossos protéticos entrará em contato via WhatsApp no número <strong>{dentistPhone}</strong> em até 15 minutos para obter o arquivo STL ou coordenar a coleta.
+                      <strong>Próximo passo:</strong> Clique no botão abaixo para enviar os dados do caso diretamente ao WhatsApp da Macrov Lab. Resposta em até 15 minutos.
                     </div>
                   </div>
-                  <button onClick={resetForm} className="btn btn-ghost" style={{ marginTop: "24px" }}>Simular Novo Caso</button>
+                  <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn btn-gold btn-pulse" style={{ marginTop: "20px", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="20" height="20"><path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z"/><path d="M8.5 8.5c-.3 1.5 2.3 5.2 4 6 .8.4 1.8.6 2.5-.2.4-.5.3-1-.2-1.4-.6-.4-1.4-.9-2-.3-.4.4-1.6-.4-2.3-1.6-.5-.9.1-1.3.4-1.8.3-.5.1-1.1-.3-1.5-.4-.4-1.2-.5-1.8 0Z" fill="currentColor" stroke="none"/></svg>
+                    Enviar Orçamento via WhatsApp
+                  </a>
+                  <button onClick={resetForm} className="btn btn-ghost" style={{ marginTop: "12px" }}>Simular Novo Caso</button>
                 </div>
               )}
             </div>
@@ -737,15 +769,6 @@ export default function App() {
                       <span style={{ fontSize: ".84rem", color: "var(--muted)", display: "block" }}>Entrega Prevista</span>
                       <strong style={{ fontSize: "1.2rem", color: "var(--gold-lt)" }}>{deliveryDate}</strong>
                     </div>
-                  </div>
-                  <div className="summary-row" style={{ borderBottom: "none", background: "rgba(217,164,65,.04)", padding: "16px", borderRadius: "10px", marginTop: "14px" }}>
-                    <div>
-                      <span style={{ fontSize: ".84rem", color: "var(--muted)", display: "block" }}>Preço Médio Estimado / Unidade</span>
-                      <span className="summary-value highlight" style={{ fontSize: "1.6rem" }}>R$ {calculatePrice().toFixed(2)}</span>
-                    </div>
-                    <span style={{ fontSize: ".74rem", color: "var(--muted)", maxWidth: "140px", textAlign: "right" }}>
-                      *Faturamento mensal em fatura única B2B para clínicas cadastradas.
-                    </span>
                   </div>
                 </div>
               </div>
@@ -841,7 +864,7 @@ export default function App() {
               </p>
 
               {[
-                { icon: <PhoneIcon />, label: "WhatsApp Suporte Técnico",  content: <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" style={{ color: "var(--ink)", fontWeight: "bold" }}>(69) 99999-0000</a> },
+                { icon: <PhoneIcon />, label: "WhatsApp Suporte Técnico",  content: <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" style={{ color: "var(--ink)", fontWeight: "bold" }}>{WHATSAPP_DISPLAY}</a> },
                 { icon: <ToothIcon />, label: "E-mail de Cadastro",        content: <a href="mailto:macrovlab@gmail.com" style={{ color: "var(--ink)", fontWeight: "bold" }}>macrovlab@gmail.com</a>, iconColor: "var(--accent-purple)" },
                 { icon: <CalendarIcon />, label: "Localização do Laboratório", content: <span style={{ color: "var(--ink)", fontWeight: "bold" }}>Porto Velho, Rondônia — RO</span> },
               ].map((item, i) => (
@@ -854,7 +877,7 @@ export default function App() {
                 </div>
               ))}
 
-              <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="btn btn-gold btn-pulse" style={{ marginTop: "24px", width: "100%" }}>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="btn btn-gold btn-pulse" style={{ marginTop: "24px", width: "100%" }}>
                 <PhoneIcon /> Falar no WhatsApp
               </a>
             </div>
@@ -874,7 +897,7 @@ export default function App() {
               </p>
             </div>
             <div className="cta-acts">
-              <a href="https://wa.me/5569999990000" target="_blank" rel="noopener noreferrer" className="btn btn-gold">Falar no WhatsApp</a>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="btn btn-gold">Falar no WhatsApp</a>
               <a href="mailto:macrovlab@gmail.com" className="btn btn-ghost">Enviar e-mail</a>
               <span className="cta-note">Resposta em até 24h úteis</span>
             </div>
@@ -919,7 +942,7 @@ export default function App() {
             <div>
               <h4 className="footer-title">Contato</h4>
               <ul className="footer-links">
-                <li><a href="https://wa.me/5569999990000"                  target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a></li>
+                <li><a href={`https://wa.me/${WHATSAPP_NUMBER}`}                  target="_blank" rel="noopener noreferrer" className="footer-link">WhatsApp</a></li>
                 <li><a href="mailto:macrovlab@gmail.com"                   className="footer-link">macrovlab@gmail.com</a></li>
                 <li><a href="https://instagram.com/macrovlab"              target="_blank" rel="noopener noreferrer" className="footer-link">@macrovlab</a></li>
               </ul>
@@ -934,7 +957,7 @@ export default function App() {
               <a href="https://instagram.com/macrovlab" target="_blank" rel="noreferrer" className="social-link" aria-label="Instagram">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
               </a>
-              <a href="https://wa.me/5569999990000" target="_blank" rel="noreferrer" className="social-link" aria-label="WhatsApp">
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="social-link" aria-label="WhatsApp">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z"/><path d="M8.5 8.5c-.3 1.5 2.3 5.2 4 6 .8.4 1.8.6 2.5-.2.4-.5.3-1-.2-1.4-.6-.4-1.4-.9-2-.3-.4.4-1.6-.4-2.3-1.6-.5-.9.1-1.3.4-1.8.3-.5.1-1.1-.3-1.5-.4-.4-1.2-.5-1.8 0Z" fill="currentColor" stroke="none"/></svg>
               </a>
             </div>
